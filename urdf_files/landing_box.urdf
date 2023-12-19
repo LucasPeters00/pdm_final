@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot name="drone_platform">
+
+  <!-- Link for the base of the platform -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.7 0.7 0.2"/> <!-- Size of the platform (length, width, height) -->
+      </geometry>
+      <material name="white">
+        <color rgba="1 1 1 1"/> <!-- Color of the platform (RGBA) -->
+      </material>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="1.0 1.0 0.2"/> <!-- Collision geometry, same as visual -->
+      </geometry>
+    </collision>
+  </link>
+
+</robot>
+
+
