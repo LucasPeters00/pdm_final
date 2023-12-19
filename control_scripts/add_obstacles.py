@@ -20,6 +20,7 @@ def add_obstacles():
         y = column_positions[i][1]
         z = column_positions[i][2]
 
+        #slightly larger then real, to have a safety margin.
         radius = 0.25
 
         # Flatten the tuple before adding it to the list
