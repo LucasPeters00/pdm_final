@@ -38,7 +38,7 @@ path, tree = rrt_star(start, goal, obstacles, step_size, max_iter)
 ### Plot the results comment or uncomment the line you want to see ###
 
 # plot_rrt_3d(tree, path, obstacles)
-# plot_rrt(tree, path, obstacles)    
+plot_rrt(tree, path, obstacles)    
 
 # Load the drone into the simulation
 drone_model = "urdf_files/cf2x.urdf"
