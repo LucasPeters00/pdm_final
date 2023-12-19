@@ -4,6 +4,7 @@ import pybullet_data
 import time
 import os
 import cvxpy as cp
+from control_scripts.add_obstacles import add_obstacles
 
 # Import the Drone class from its script file
 from drone import Drone

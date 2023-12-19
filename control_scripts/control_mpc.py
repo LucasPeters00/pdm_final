@@ -1,6 +1,7 @@
 
 import numpy as np
 import cvxpy as cp
+from control_scripts.add_obstacles import add_obstacles
 
 def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_acceleration):
     # Pad the waypoint with zeros to match 6D state
@@ -27,6 +28,8 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_a
             constraints += [cp.abs(u[0, t]) <= max_acceleration]
             constraints += [cp.abs(u[1, t]) <= max_acceleration]
             constraints += [cp.abs(u[2, t]) <= max_acceleration]
+
+            problem = cp.Problem(cp.Minimize(cost), constraints)
 
     # Penalize terminal state
     cost += cp.quad_form(x[:, horizon] - waypoint_padded, Q)
