@@ -8,6 +8,9 @@ def add_obstacles():
         [0, 3, 0.8], [1, 3, 0.8], [2, 3, 0.8],
         [0, 4, 0.8], [1, 4, 0.8], [2, 4, 0.8]
     ]
+    p.loadURDF("urdf_files/sliding_column.urdf", [-1,2.5,.8], p.getQuaternionFromEuler([0, 0, 0]))
+    p.loadURDF("urdf_files/sliding_column.urdf", [3,3.5,.8], p.getQuaternionFromEuler([0, 0, 0]))
+
 
     p.loadURDF("urdf_files/landing_box.urdf", [0,0,0.1], p.getQuaternionFromEuler([0, 0, 0]) )
     obstacle_dimensions = []
