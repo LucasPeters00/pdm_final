@@ -7,7 +7,7 @@ import cvxpy as cp
 import matplotlib.pyplot as plt 
 
 # Import the Drone class from its script file
-from drone import Drone
+from ../drone import Drone
 
 # Load the functions defined in other scripts
 from test_enviroment.Diederik.RRT_star.rrt_star import rrt_star

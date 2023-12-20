@@ -8,9 +8,8 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_a
     waypoint_padded = np.concatenate((waypoint, np.zeros(3)))
 
     if waypoint[0] == goal[0] and waypoint[1] == goal[1] and waypoint[2] == goal[2]:
-        Q[3:6] = [100, 100, 100]
+        Q = np.diag([100, 100, 100, 100, 100, 100])
         
-
     # Initialize state (6D) and control (3D) variables
     x = cp.Variable((6, horizon + 1))
     u = cp.Variable((3, horizon))

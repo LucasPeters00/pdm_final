@@ -69,6 +69,10 @@ my_drone = Drone(drone_model, start_position, drone_mass, dt)
 
 # MPC Loop
 for waypoint in path:
+
+    final_waypoint_reached = True if waypoint == path[-1] else False
+    if final_waypoint_reached:
+        print("Final waypoint almost reached!")        
     while True:
         
         # Start the timer
@@ -77,8 +81,9 @@ for waypoint in path:
         tolerance = 0.1
 
         # Check if the current waypoint is reached
-        if is_waypoint_reached(my_drone.position, waypoint, tolerance):
-            break  # Exit the loop and move to the next waypoint
+        if not final_waypoint_reached:
+            if is_waypoint_reached(my_drone.position, waypoint, tolerance):
+                break  # Exit the loop and move to the next waypoint
 
         # Apply MPC control
         control_input, next_state = mpc_control_drone(current_state, waypoint, my_drone.A, my_drone.B, Q, R, horizon, max_velocity, max_acceleration, goal)
@@ -98,12 +103,3 @@ for waypoint in path:
 
         p.stepSimulation()
         # time.sleep(dt)
-
-# NOG REKENING HOUDEN MET DE STATE SPACE VAN DE DRONE, DEZE IS 6D, DUS MOETEN WE DE 3D WAYPOINTS PADEN UITBREIDEN NAAR 6D
-# NOG EEN MANIER VINDEN OM DE COLLISION AVOIDANCE TE IMPLEMENTEREN, MISSCHIEN MET GVO OF ANDERE CONSTRAINTS IN MPC
-# YAW NOG IMPLEMENTEREN IN DE MPC
-# CHECKEN OF DE WAYPOINT BEREIKT IS EN DE SNELHEID NUL IS AAN HET EINDE VAN DE ROUTE
-# HOE YAW RRT* IMPLEMENTEREN?
-        # IN CONFIGURATION SPACE?
-        # IN STATE SPACE?
-        # IN 3D SPACE?        
