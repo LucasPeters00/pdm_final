@@ -35,9 +35,15 @@ def add_obstacles():
 
 def move_the_column(sliding_column_ids):
 
-    velocity = 2
+    velocity = 4
+    min_x = -1  
+    max_x = 3  
 
-    p.resetBaseVelocity(sliding_column_ids[0], [velocity, 0, 0])
-    p.resetBaseVelocity(sliding_column_ids[1], [-velocity, 0, 0])
+    for column_id in sliding_column_ids:
+        position, _ = p.getBasePositionAndOrientation(column_id)
+        if position[0] <= min_x:
+            p.resetBaseVelocity(column_id, [velocity, 0, 0])
+        elif position[0] >= max_x:
+            p.resetBaseVelocity(column_id, [-velocity, 0, 0])
 
-    return sliding_column_ids
+    return sliding_column_ids, velocity

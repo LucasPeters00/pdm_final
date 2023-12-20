@@ -69,7 +69,7 @@ R = np.diag([0.001, 0.001, 0.001])
 my_drone = Drone(drone_model, start_position, drone_mass, dt)
 
 
-# MPC Loop
+# Control (MPC) Loop
 for waypoint in path:
 
     final_waypoint_reached = True if waypoint == path[-1] else False
@@ -83,7 +83,7 @@ for waypoint in path:
         tolerance = 0.1
 
         #Sliding columns
-        sliding_column_ids = move_the_column(sliding_column_ids)
+        sliding_column_ids, velocity_columns = move_the_column(sliding_column_ids)
 
         # Check if the current waypoint is reached
         if not final_waypoint_reached:

@@ -44,7 +44,7 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_a
             constraints += [cp.abs(u[0, t]) <= max_acceleration]
             constraints += [cp.abs(u[1, t]) <= max_acceleration]
             constraints += [cp.abs(u[2, t]) <= max_acceleration]
-            print(constraints)
+            # print(constraints)
             
 
     # Penalize terminal state
