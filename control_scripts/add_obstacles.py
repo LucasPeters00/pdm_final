@@ -32,3 +32,10 @@ def add_obstacles():
         obstacle_dimensions.append([x,y,z,radius])
     
     return obstacle_dimensions, sliding_column_ids
+
+def move_the_column(sliding_column_ids):
+
+    velocity = 2
+
+    p.resetBaseVelocity(sliding_column_ids[0], [velocity, 0, 0])
+    p.resetBaseVelocity(sliding_column_ids[1], [-velocity, 0, 0])

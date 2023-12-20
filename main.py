@@ -16,6 +16,7 @@ from RRT_star.rrt_star import plot_rrt_3d
 from control_scripts.add_obstacles import add_obstacles
 from control_scripts.control_mpc import mpc_control_drone
 from control_scripts.control_mpc import is_waypoint_reached
+from control_scripts.add_obstacles import move_the_column
 
 # Initialize the simulation
 p.connect(p.GUI)
@@ -80,6 +81,9 @@ for waypoint in path:
         start_time = time.time()
         current_state = my_drone.update_state()
         tolerance = 0.1
+
+        #Sliding columns
+        move_the_column(sliding_column_ids)
 
         # Check if the current waypoint is reached
         if not final_waypoint_reached:
