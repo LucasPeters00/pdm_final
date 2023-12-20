@@ -39,3 +39,5 @@ def move_the_column(sliding_column_ids):
 
     p.resetBaseVelocity(sliding_column_ids[0], [velocity, 0, 0])
     p.resetBaseVelocity(sliding_column_ids[1], [-velocity, 0, 0])
+
+    return sliding_column_ids

@@ -83,7 +83,7 @@ for waypoint in path:
         tolerance = 0.1
 
         #Sliding columns
-        move_the_column(sliding_column_ids)
+        sliding_column_ids = move_the_column(sliding_column_ids)
 
         # Check if the current waypoint is reached
         if not final_waypoint_reached:
