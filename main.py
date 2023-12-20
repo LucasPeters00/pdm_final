@@ -81,7 +81,7 @@ for waypoint in path:
             break  # Exit the loop and move to the next waypoint
 
         # Apply MPC control
-        control_input, next_state = mpc_control_drone(current_state, waypoint, my_drone.A, my_drone.B, Q, R, horizon, max_velocity, max_acceleration)
+        control_input, next_state = mpc_control_drone(current_state, waypoint, my_drone.A, my_drone.B, Q, R, horizon, max_velocity, max_acceleration, goal)
         my_drone.apply_control(control_input)
 
         # # Debug printing

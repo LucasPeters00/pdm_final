@@ -3,9 +3,13 @@ import numpy as np
 import cvxpy as cp
 # from control_scripts.add_obstacles import add_obstacles
 
-def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_acceleration):
+def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_acceleration, goal):
     # Pad the waypoint with zeros to match 6D state
     waypoint_padded = np.concatenate((waypoint, np.zeros(3)))
+
+    if waypoint[0] == goal[0] and waypoint[1] == goal[1] and waypoint[2] == goal[2]:
+        Q[3:6] = [100, 100, 100]
+        
 
     # Initialize state (6D) and control (3D) variables
     x = cp.Variable((6, horizon + 1))
@@ -47,5 +51,3 @@ def is_waypoint_reached(current_position, waypoint, tolerance):
     """Check if the current position is within a certain distance of the waypoint."""
     return np.linalg.norm(np.array(current_position) - np.array(waypoint[:3])) < tolerance
 
-
-#CHECK THAT WAYPOINT IS REACHED AND VELOCITY ZERO AT THE LAST WAYPOINT
