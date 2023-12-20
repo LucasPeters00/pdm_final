@@ -25,7 +25,8 @@ p.setGravity(0, 0, -9.81)
 p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"), [0, 0, 0])
 
 # Add obstacles to the simulation and list them in a list
-obstacles = np.array(add_obstacles())
+obstacles, sliding_column_ids = add_obstacles()
+obstacles = np.array(obstacles)
 
 # Define the start and goal positions and step size and max iterations
 start = np.array([0, 0, 0.25 + 0.5])
