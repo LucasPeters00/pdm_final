@@ -69,10 +69,8 @@ for waypoint in path:
         
         # Start the timer
         start_time = time.time()
-
         current_state = my_drone.update_state()
-
-        tolerance = 0.15
+        tolerance = 0.1
 
         # Check if the current waypoint is reached
         if is_waypoint_reached(my_drone.position, waypoint, tolerance):
@@ -96,3 +94,12 @@ for waypoint in path:
 
         p.stepSimulation()
         # time.sleep(dt)
+
+# NOG REKENING HOUDEN MET DE STATE SPACE VAN DE DRONE, DEZE IS 6D, DUS MOETEN WE DE 3D WAYPOINTS PADEN UITBREIDEN NAAR 6D
+# NOG EEN MANIER VINDEN OM DE COLLISION AVOIDANCE TE IMPLEMENTEREN, MISSCHIEN MET GVO OF ANDERE CONSTRAINTS IN MPC
+# YAW NOG IMPLEMENTEREN IN DE MPC
+# CHECKEN OF DE WAYPOINT BEREIKT IS EN DE SNELHEID NUL IS AAN HET EINDE VAN DE ROUTE
+# HOE YAW RRT* IMPLEMENTEREN?
+        # IN CONFIGURATION SPACE?
+        # IN STATE SPACE?
+        # IN 3D SPACE?        
