@@ -45,6 +45,8 @@ path, tree = rrt_star(start, goal, obstacles, step_size, max_iter)
 drone_model = "urdf_files/cf2x.urdf"
 start_position = np.array([0, 0, 0.25]) 
 drone_mass = 0.027 * 10**0
+
+#Contraint for MPC 
 max_velocity = 8.333 #ms^-1
 max_acceleration = 22.07 #ms^-2
 
