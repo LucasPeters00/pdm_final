@@ -58,6 +58,8 @@ Thrust-to-Weight Ratio (T/W): Provided as 2.25. This ratio indicates how much th
 # MPC parameters
 horizon = 10
 dt = 0.01
+
+# Define the MPC cost matrices, the velocity is not penalized
 Q = np.diag([100, 100, 100, 0, 0, 0])
 R = np.diag([0.001, 0.001, 0.001])
 
