@@ -1,3 +1,18 @@
+
+
+def obstacle_avoidance_constraint(x, u, dynamic_obstacles, safety_margin):
+    constraints = []
+
+    for obstacle in dynamic_obstacles:
+        relative_position = x[:3] - obstacle.position
+        relative_velocity = x[3:6] - obstacle.velocity
+        distance_to_obstacle = cp.norm(relative_position)
+
+        # Voeg een constraint toe op basis van de dynamische obstakels
+        constraints += [distance_to_obstacle >= obstacle.radius + safety_margin + cp.norm(relative_velocity) * time_horizon]
+
+    return constraints
+
 # Data Required of dynamic_obstacles to use in the mpc controller as constraint:
 
 ### Dynamic Obstacle Information:
