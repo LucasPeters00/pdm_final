@@ -31,7 +31,7 @@ obstacles = np.array(obstacles)
 
 # Define the start and goal positions and step size and max iterations
 start = np.array([0, 0, 0.25 + 0.5])
-goal = np.array([4, 5, 0.7])
+goal = np.array([2, 5.5, 0.7])
 step_size = 0.1
 max_iter = 1000
 
@@ -111,3 +111,5 @@ for waypoint in path:
 
         p.stepSimulation()
         # time.sleep(dt)
+
+

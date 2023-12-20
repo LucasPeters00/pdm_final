@@ -2,14 +2,14 @@
 import numpy as np
 import cvxpy as cp
 # from control_scripts.add_obstacles import add_obstacles
-from dynamic_obstacles import obstacle_avoidance_constraint, DynamicObstacle
+# from dynamic_obstacles import obstacle_avoidance_constraint, DynamicObstacle
 
-# Dummy dynamic obstacles
-obstacle1 = DynamicObstacle(position=np.array([5.0, 0.0, 0.8]), velocity=np.array([1.0, 0.0, 0.0]), radius=0.15)
-obstacle2 = DynamicObstacle(position=np.array([0.0, 3.0, 0.8]), velocity=np.array([1.0, 0.0, 0.0]), radius=0.15)
+# # Dummy dynamic obstacles
+# obstacle1 = DynamicObstacle(position=np.array([5.0, 0.0, 0.8]), velocity=np.array([1.0, 0.0, 0.0]), radius=0.15)
+# obstacle2 = DynamicObstacle(position=np.array([0.0, 3.0, 0.8]), velocity=np.array([1.0, 0.0, 0.0]), radius=0.15)
 
 # List of dynamic obstacles
-dynamic_obstacles = [obstacle1, obstacle2]
+# dynamic_obstacles = [obstacle1, obstacle2]
 
 def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_acceleration, goal):
     # Pad the waypoint with zeros to match 6D state
@@ -33,9 +33,9 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_a
             cost += cp.quad_form(u[:, t], R)
             constraints += [x[:, t+1] == A @ x[:, t] + B @ u[:, t]]
 
-            # Run function obstacle_avoidance_constraint to add constraints of the dynamical obstacles to the MPC problem
-            obstacle_constraint_t = obstacle_avoidance_constraint(x[:, t], u[:, t], dynamic_obstacles, safety_margin)
-            constraints += obstacle_constraint_t
+            # # Run function obstacle_avoidance_constraint to add constraints of the dynamical obstacles to the MPC problem
+            # obstacle_constraint_t = obstacle_avoidance_constraint(x[:, t], u[:, t], dynamic_obstacles, safety_margin)
+            # constraints += obstacle_constraint_t
 
             constraints += [cp.abs(x[3, t]) <= max_velocity]  # Velocity in x
             constraints += [cp.abs(x[4, t]) <= max_velocity]  # Velocity in y
