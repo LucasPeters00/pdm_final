@@ -17,6 +17,7 @@ from control_scripts.add_obstacles import add_obstacles
 from control_scripts.control_mpc import mpc_control_drone
 from control_scripts.control_mpc import is_waypoint_reached
 from control_scripts.add_obstacles import move_the_column
+from control_scripts.control_mpc import condition_for_avoiding_obstacle
 
 # Initialize the simulation
 p.connect(p.GUI)
@@ -82,24 +83,27 @@ for waypoint in path:
         current_state = my_drone.update_state()
         tolerance = 0.1
 
-        #Sliding columns
+        #Sliding columns 
         sliding_column_ids, velocity_columns = move_the_column(sliding_column_ids)
+        safety_margin = 0.7
+
+        condition_for_avoiding_obstacle_is_true = condition_for_avoiding_obstacle(my_drone.position, sliding_column_ids, safety_margin)
 
         # Check if the current waypoint is reached
         if not final_waypoint_reached:
             if is_waypoint_reached(my_drone.position, waypoint, tolerance):
                 break  # Exit the loop and move to the next waypoint
 
-        # Apply MPC control
-        # pos = functie verplaatsen obstacle (obstacle, velocity, dt)
-        # .... = functie_constraint(nieuwe post obstacle)
 
-        control_input, next_state = mpc_control_drone(current_state, waypoint, my_drone.A, my_drone.B, Q, R, horizon, max_velocity, max_acceleration, goal)
+        control_input, next_state = mpc_control_drone(current_state, waypoint,
+                                                       my_drone.A, my_drone.B, Q, R, horizon, max_velocity,
+                                                         max_acceleration, goal, condition_for_avoiding_obstacle_is_true)
+        
         my_drone.apply_control(control_input)
 
         # # Debug printing
         print("waypoint         {:>6} {:>6} {:>6}".format(np.round(waypoint[0], 2), np.round(waypoint[1], 2), np.round(waypoint[2], 2)))
-        print("Difference       {:>6} {:>6} {:>6}".format(np.round(current_state[0]-waypoint[0], 2), np.round(current_state[1]-waypoint[1], 2), np.round(current_state[2]-waypoint[2], 2)))
+        # print("Difference       {:>6} {:>6} {:>6}".format(np.round(current_state[0]-waypoint[0], 2), np.round(current_state[1]-waypoint[1], 2), np.round(current_state[2]-waypoint[2], 2)))
         print("Control Input:   {:>6} {:>6} {:>6}".format(np.round(control_input[0], 2), np.round(control_input[1], 2), np.round(control_input[2], 2)))
 
         # Stop the clock
@@ -111,5 +115,3 @@ for waypoint in path:
 
         p.stepSimulation()
         # time.sleep(dt)
-
-

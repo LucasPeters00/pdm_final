@@ -1,6 +1,7 @@
 
 import numpy as np
 import cvxpy as cp
+import pybullet as p
 # from control_scripts.add_obstacles import add_obstacles
 # from dynamic_obstacles import obstacle_avoidance_constraint, DynamicObstacle
 
@@ -11,7 +12,8 @@ import cvxpy as cp
 # List of dynamic obstacles
 # dynamic_obstacles = [obstacle1, obstacle2]
 
-def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_acceleration, goal):
+def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity,
+                       max_acceleration, goal, condition_for_avoiding_obstacle_is_true):
     # Pad the waypoint with zeros to match 6D state
     waypoint_padded = np.concatenate((waypoint, np.zeros(3)))
 
@@ -28,7 +30,14 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_a
 
     # MPC problem formulation
     for t in range(horizon):
-        cost += cp.quad_form(x[:, t] - waypoint_padded, Q)
+
+        if condition_for_avoiding_obstacle_is_true:
+            Q_obstacle = np.diag([100, 100, 100, 100, 100, 0])
+            cost += cp.quad_form(x[:, t] - np.array([0, 0, 0, 0, 0, 0]), Q_obstacle)
+
+        else:
+            cost += cp.quad_form(x[:, t] - waypoint_padded, Q)
+
         if t < horizon - 1:
             cost += cp.quad_form(u[:, t], R)
             constraints += [x[:, t+1] == A @ x[:, t] + B @ u[:, t]]
@@ -44,11 +53,16 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_a
             constraints += [cp.abs(u[0, t]) <= max_acceleration]
             constraints += [cp.abs(u[1, t]) <= max_acceleration]
             constraints += [cp.abs(u[2, t]) <= max_acceleration]
-            # print(constraints)
-            
 
     # Penalize terminal state
-    cost += cp.quad_form(x[:, horizon] - waypoint_padded, Q)
+    if condition_for_avoiding_obstacle_is_true:
+        Q_obstacle = np.diag([100, 100, 100, 100, 100, 0])
+        cost += cp.quad_form(x[:, horizon] - np.array([0, 0, 0, 0, 0, 0]), Q_obstacle)
+    else:
+        cost += cp.quad_form(x[:, horizon] - waypoint_padded, Q)
+
+    if condition_for_avoiding_obstacle_is_true:
+        print("Obstacle avoidance is on")
 
     # Define and solve the optimization problem
     problem = cp.Problem(cp.Minimize(cost), constraints)
@@ -62,4 +76,27 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity, max_a
 def is_waypoint_reached(current_position, waypoint, tolerance):
     """Check if the current position is within a certain distance of the waypoint."""
     return np.linalg.norm(np.array(current_position) - np.array(waypoint[:3])) < tolerance
+
+def condition_for_avoiding_obstacle(drone_position, obstacle_ids, safety_margin):
+    min_distance = float('inf')
+
+    for obstacle_id in obstacle_ids:
+        obstacle_position, _ = p.getBasePositionAndOrientation(obstacle_id)
+        distance = np.linalg.norm(np.array(drone_position[:2]) - np.array(obstacle_position[:2]))
+        if distance < min_distance:
+            min_distance = distance
+            # print("min_distance", min_distance)
+
+    if min_distance < safety_margin:
+        return True
+    else:
+        return False
+    """Check if the drone is within a certain distance of the obstacle."""
+
+    return True
+
+    # if np.linalg.norm(np.array(current_position) - np.array(waypoint[:3])) < tolerance:
+    #     return True
+    # else:
+    #     return False
 
