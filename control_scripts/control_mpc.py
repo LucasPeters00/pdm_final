@@ -84,9 +84,13 @@ def condition_for_avoiding_obstacle(drone_position, obstacle_ids, safety_margin)
 
     for obstacle_id in obstacle_ids:
         obstacle_position, _ = p.getBasePositionAndOrientation(obstacle_id)
-        distance = np.linalg.norm(np.array(drone_position[:2]) - np.array(obstacle_position[:2]))
-        if distance < min_distance:
-            min_distance = distance
+        #Only look at the columns in front of the drone
+        if obstacle_position[1] > drone_position[1]:
+            distance = np.linalg.norm(np.array(drone_position[:2]) - np.array(obstacle_position[:2]))
+            #Get the closest column
+            if distance < min_distance:
+                min_distance = distance
+
             # print("min_distance", min_distance)
 
     if min_distance < safety_margin:
@@ -94,8 +98,6 @@ def condition_for_avoiding_obstacle(drone_position, obstacle_ids, safety_margin)
     else:
         return False
     """Check if the drone is within a certain distance of the obstacle."""
-
-    return True
 
     # if np.linalg.norm(np.array(current_position) - np.array(waypoint[:3])) < tolerance:
     #     return True

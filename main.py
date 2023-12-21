@@ -5,6 +5,7 @@ import time
 import os
 import cvxpy as cp
 from control_scripts.add_obstacles import add_obstacles
+#TEST
 #TEST TEST TEST SWITCHING BRANCHES
 
 # Import the Drone class from its script file
@@ -23,7 +24,7 @@ from control_scripts.control_mpc import condition_for_avoiding_obstacle
 # Initialize the simulation
 p.connect(p.GUI)
 p.resetSimulation()
-p.setRealTimeSimulation(0)
+p.setRealTimeSimulation(1)
 p.setGravity(0, 0, -9.81)
 p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"), [0, 0, 0])
 
@@ -43,7 +44,7 @@ path, tree = rrt_star(start, goal, obstacles, step_size, max_iter)
 ### Plot the results comment or uncomment the line you want to see ###
 
 # plot_rrt_3d(tree, path, obstacles)
-# plot_rrt(tree, path, obstacles)    
+plot_rrt(tree, path, obstacles)    
 
 # Load the drone into the simulation
 drone_model = "urdf_files/cf2x.urdf"
@@ -76,7 +77,7 @@ for waypoint in path:
 
     final_waypoint_reached = True if waypoint == path[-1] else False
     if final_waypoint_reached:
-        print("Final waypoint almost reached!")        
+        print("Final waypoint reached!")        
     while True:
         
         # Start the timer
@@ -102,17 +103,17 @@ for waypoint in path:
         
         my_drone.apply_control(control_input)
 
-        # # Debug printing
-        print("waypoint         {:>6} {:>6} {:>6}".format(np.round(waypoint[0], 2), np.round(waypoint[1], 2), np.round(waypoint[2], 2)))
+        # # # Debug printing
+        # print("waypoint         {:>6} {:>6} {:>6}".format(np.round(waypoint[0], 2), np.round(waypoint[1], 2), np.round(waypoint[2], 2)))
         # print("Difference       {:>6} {:>6} {:>6}".format(np.round(current_state[0]-waypoint[0], 2), np.round(current_state[1]-waypoint[1], 2), np.round(current_state[2]-waypoint[2], 2)))
-        print("Control Input:   {:>6} {:>6} {:>6}".format(np.round(control_input[0], 2), np.round(control_input[1], 2), np.round(control_input[2], 2)))
+        # print("Control Input:   {:>6} {:>6} {:>6}".format(np.round(control_input[0], 2), np.round(control_input[1], 2), np.round(control_input[2], 2)))
 
-        # Stop the clock
-        end_time = time.time()
-        # Calculate the control frequency
-        control_frequency = 1.0 / (end_time - start_time)
+        # # Stop the clock
+        # end_time = time.time()
+        # # Calculate the control frequency
+        # control_frequency = 1.0 / (end_time - start_time)
 
-        print(f"Control frequency: {control_frequency} Hz")
+        # print(f"Control frequency: {control_frequency} Hz")
 
         p.stepSimulation()
         # time.sleep(dt)
