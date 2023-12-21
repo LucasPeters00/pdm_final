@@ -32,8 +32,8 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity,
     for t in range(horizon):
 
         if condition_for_avoiding_obstacle_is_true:
-            Q_obstacle = np.diag([100, 100, 100, 100, 100, 0])
-            cost += cp.quad_form(x[:, t] - np.array([0, 0, 0, 0, 0, 0]), Q_obstacle)
+            Q_obstacle = np.diag([100, 100])
+            cost += cp.quad_form(x[4:, t] - np.array([0, 0]), Q_obstacle)
 
         else:
             cost += cp.quad_form(x[:, t] - waypoint_padded, Q)
@@ -56,8 +56,8 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity,
 
     # Penalize terminal state
     if condition_for_avoiding_obstacle_is_true:
-        Q_obstacle = np.diag([100, 100, 100, 100, 100, 0])
-        cost += cp.quad_form(x[:, horizon] - np.array([0, 0, 0, 0, 0, 0]), Q_obstacle)
+        Q_obstacle = np.diag([100, 100])
+        cost += cp.quad_form(x[4:, horizon] - np.array([0, 0]), Q_obstacle)
     else:
         cost += cp.quad_form(x[:, horizon] - waypoint_padded, Q)
 
