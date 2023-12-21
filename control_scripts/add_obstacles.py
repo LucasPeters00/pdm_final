@@ -12,6 +12,7 @@ def add_obstacles():
     sliding_column_ids = []
     sliding_column_ids.append(p.loadURDF("urdf_files/sliding_column.urdf", [-1,1.5,.8], p.getQuaternionFromEuler([0, 0, 0])))
     sliding_column_ids.append(p.loadURDF("urdf_files/sliding_column.urdf", [3,2.5,.8], p.getQuaternionFromEuler([0, 0, 0])))
+    sliding_column_ids.append(p.loadURDF("urdf_files/sliding_column.urdf", [-1,3.5,.8], p.getQuaternionFromEuler([0, 0, 0])))
 
 
     p.loadURDF("urdf_files/landing_box.urdf", [0,0,0.1], p.getQuaternionFromEuler([0, 0, 0]) )
@@ -27,7 +28,7 @@ def add_obstacles():
         z = column_positions[i][2]
 
         #slightly larger then real, to have a safety margin.
-        radius = 0.25
+        radius = 0.3
 
         # Flatten the tuple before adding it to the list
         obstacle_dimensions.append([x,y,z,radius])

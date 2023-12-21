@@ -85,7 +85,7 @@ for waypoint in path:
 
         #Sliding columns 
         sliding_column_ids, velocity_columns = move_the_column(sliding_column_ids)
-        safety_margin = 0.7
+        safety_margin = 0.6
 
         condition_for_avoiding_obstacle_is_true = condition_for_avoiding_obstacle(my_drone.position, sliding_column_ids, safety_margin)
 
