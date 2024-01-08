@@ -44,10 +44,6 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity,
             cost += cp.quad_form(u[:, t], R)
             constraints += [x[:, t+1] == A @ x[:, t] + B @ u[:, t]]
 
-            # # Run function obstacle_avoidance_constraint to add constraints of the dynamical obstacles to the MPC problem
-            # obstacle_constraint_t = obstacle_avoidance_constraint(x[:, t], u[:, t], dynamic_obstacles, safety_margin)
-            # constraints += obstacle_constraint_t
-
             constraints += [cp.abs(x[3, t]) <= max_velocity]  # Velocity in x
             constraints += [cp.abs(x[4, t]) <= max_velocity]  # Velocity in y
             constraints += [cp.abs(x[5, t]) <= max_velocity]  # Velocity in z
