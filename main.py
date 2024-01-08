@@ -5,16 +5,14 @@ import time
 import os
 import cvxpy as cp
 from control_scripts.add_obstacles import add_obstacles
-#TEST
-#TEST TEST TEST SWITCHING BRANCHES
 
 # Import the Drone class from its script file
 from drone import Drone
 
 # Load the functions defined in other scripts
-from RRT_star.rrt_star import rrt_star
-from RRT_star.rrt_star import plot_rrt
-from RRT_star.rrt_star import plot_rrt_3d    
+# from RRT_star.class_rrt import rrt_star
+from RRT_star.class_rrt import plot_rrt
+from RRT_star.class_rrt import plot_rrt_3d    
 from control_scripts.add_obstacles import add_obstacles
 from control_scripts.control_mpc import mpc_control_drone
 from control_scripts.control_mpc import is_waypoint_reached
