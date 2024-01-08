@@ -2,15 +2,6 @@
 import numpy as np
 import cvxpy as cp
 import pybullet as p
-# from control_scripts.add_obstacles import add_obstacles
-# from dynamic_obstacles import obstacle_avoidance_constraint, DynamicObstacle
-
-# # Dummy dynamic obstacles
-# obstacle1 = DynamicObstacle(position=np.array([5.0, 0.0, 0.8]), velocity=np.array([1.0, 0.0, 0.0]), radius=0.15)
-# obstacle2 = DynamicObstacle(position=np.array([0.0, 3.0, 0.8]), velocity=np.array([1.0, 0.0, 0.0]), radius=0.15)
-
-# List of dynamic obstacles
-# dynamic_obstacles = [obstacle1, obstacle2]
 
 def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity,
                        max_acceleration, goal, condition_for_avoiding_obstacle_is_true):
