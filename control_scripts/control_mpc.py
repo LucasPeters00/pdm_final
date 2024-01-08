@@ -34,14 +34,8 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity,
         if t < horizon - 1:
             cost += cp.quad_form(u[:, t], R)
             constraints += [x[:, t+1] == A @ x[:, t] + B @ u[:, t]]
-
-            constraints += [cp.abs(x[3, t]) <= max_velocity]  # Velocity in x
-            constraints += [cp.abs(x[4, t]) <= max_velocity]  # Velocity in y
-            constraints += [cp.abs(x[5, t]) <= max_velocity]  # Velocity in z
-
-            constraints += [cp.abs(u[0, t]) <= max_acceleration]
-            constraints += [cp.abs(u[1, t]) <= max_acceleration]
-            constraints += [cp.abs(u[2, t]) <= max_acceleration]
+            constraints += [cp.abs(x[3:6, t]) <= max_velocity]  # Velocity constraints
+            constraints += [cp.abs(u[:, t]) <= max_acceleration] # Acceleration constraints
 
     # Penalize terminal state
     if condition_for_avoiding_obstacle_is_true:

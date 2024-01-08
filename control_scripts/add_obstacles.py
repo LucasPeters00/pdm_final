@@ -16,7 +16,7 @@ def add_obstacles():
 
 
     p.loadURDF("urdf_files/landing_box.urdf", [0,0,0.1], p.getQuaternionFromEuler([0, 0, 0]) )
-    p.loadURDF("urdf_files/landing_box.urdf", [2,5.5,0.1], p.getQuaternionFromEuler([0, 0, 0]) ) 
+
     obstacle_dimensions = []
 
     for i in range(num_columns):
