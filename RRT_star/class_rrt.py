@@ -2,7 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-class RRTstar():
+import numpy as np
+
+class RRTStar:
     def __init__(self, start, goal, obstacles, step_size, max_iter):
         self.start = start
         self.goal = goal
@@ -13,34 +15,6 @@ class RRTstar():
         self.best_path = None
         self.best_cost = np.inf
 
-    def rrt_star_algorithm(self):
-        for i in range(self.max_iter):
-            if i % (self.max_iter // 50) == 0:
-                print(f"Progress: {i / self.max_iter * 100}%")
-
-            random_point = self.generate_random_point()
-
-            nearest_node = self.find_nearest_node(random_point)
-
-            new_node_position = self.generate_new_node(nearest_node, random_point)
-
-            if self.check_collision(nearest_node, new_node_position):
-                continue
-
-            neighbors = self.find_neighbors(new_node_position)
-
-            min_cost_neighbor = self.find_min_cost_neighbor(neighbors)
-
-            new_node = self.add_new_node(min_cost_neighbor, nearest_node, new_node_position)
-
-            self.rewire_tree(neighbors, new_node)
-
-            if self.check_goal_reached(new_node):
-                self.update_best_path(new_node)
-                self.update_search_radius(i)
-
-        return self.best_path, self.tree
-
     def generate_random_point(self):
         goal_sampling_rate = 0.05
         if np.random.random() < goal_sampling_rate:
@@ -50,42 +24,46 @@ class RRTstar():
             x_max, y_max, z_max = 4, 6, 1.5
             return np.array([np.random.uniform(x_min, x_max), np.random.uniform(y_min, y_max), np.random.uniform(z_min, z_max)])
 
-    def find_nearest_node(self, point):
-        distances = [np.linalg.norm(np.array(node) - point) for node in self.tree.keys()]
+    def find_nearest_node(self, random_point):
+        distances = [np.linalg.norm(np.array(node) - random_point) for node in self.tree.keys()]
         nearest_node_index = np.argmin(distances)
         return list(self.tree.keys())[nearest_node_index]
 
-    def generate_new_node(self, nearest_node, random_point):
+    def create_new_node(self, nearest_node, random_point):
         direction_vector = random_point - nearest_node
         normalized_direction = direction_vector / np.linalg.norm(direction_vector)
-        return tuple(nearest_node + self.step_size * normalized_direction)
+        new_node_position = nearest_node + self.step_size * normalized_direction
+        return tuple(new_node_position)
 
-    def check_collision(self, nearest_node, new_node_position):
-        collision = False
+    def check_collision(self, new_node_position):
         for column in self.obstacles:
-            new_node_array = np.array(new_node_position)
-            column_center = np.array(column[:3])
+            new_node_array = np.array(new_node_position[:2])
+            column_center = np.array(column[:2])
             distance = np.linalg.norm(new_node_array - column_center)
             if distance < column[3]:
-                collision = True
-                break
-        return collision
+                return True
+        return False
 
-    def find_neighbors(self, new_node_position):
-        neighbors = [node for node in self.tree.keys() if np.linalg.norm(np.array(new_node_position) - np.array(node)) < self.obstacles[0][3]]
-        return neighbors
+    def find_neighbors(self, new_node):
+        return [node for node in self.tree.keys() if np.linalg.norm(np.array(node) - np.array(new_node)) < self.obstacles[0][3]]
 
     def find_min_cost_neighbor(self, neighbors):
-        costs = [self.tree[neighbor]['cost'] + np.linalg.norm(np.array(neighbors) - np.array(new_node_position)) for neighbor in neighbors]
+        costs = [
+            self.tree[neighbor]['cost'] + np.linalg.norm(np.array(neighbor) - np.array(self.tree[neighbor]['parent']))
+            if self.tree[neighbors[0]]['parent'] is not None
+         else np.inf
+            for neighbor in neighbors
+        ]
         min_cost_index = np.argmin(costs)
         return neighbors[min_cost_index]
 
-    def add_new_node(self, min_cost_neighbor, nearest_node, new_node_position):
+    def add_new_node(self, min_cost_neighbor, new_node_position):
         parent_cost = self.tree[min_cost_neighbor]['cost']
         distance_to_parent = np.linalg.norm(np.array(min_cost_neighbor) - np.array(new_node_position))
         new_node_cost = parent_cost + distance_to_parent
         new_node = tuple(new_node_position)
-        self.tree[new_node] = {'parent': min_cost_neighbor, 'cost': new_node_cost}
+        if new_node is not None:
+            self.tree[new_node] = {'parent': min_cost_neighbor, 'cost': new_node_cost}
         return new_node
 
     def rewire_tree(self, neighbors, new_node):
@@ -99,25 +77,50 @@ class RRTstar():
         distance_to_goal = np.linalg.norm(np.array(new_node) - np.array(self.goal))
         return distance_to_goal < self.step_size
 
-    def update_best_path(self, new_node):
-        goal_cost = self.tree[new_node]['cost'] + np.linalg.norm(np.array(new_node) - np.array(self.goal))
-        if goal_cost < self.best_cost:
-            self.best_cost = goal_cost
-            self.tree[tuple(self.goal)] = {'parent': new_node, 'cost': goal_cost}
+    def rrt_star_algorithm(self):
+        for i in range(self.max_iter):
+            if i % (self.max_iter // 50) == 0:
+                print(f"Progress: {i / self.max_iter * 100}%")
 
-            path = []
-            current_node = tuple(self.goal)
-            while current_node is not None:
-                path.append(current_node)
-                current_node = self.tree[current_node]['parent']
-            path.reverse()
-            self.best_path = path
+            random_point = self.generate_random_point()
 
-    def update_search_radius(self, iteration):
-        gamma = 2.5
-        d = 3
-        r = gamma * ((np.log(iteration + 1) / (iteration + 1))**(1 / (d + 1)))
-        self.step_size = min(r, self.step_size)
+            nearest_node = self.find_nearest_node(random_point)
+
+            new_node_position = self.create_new_node(nearest_node, random_point)
+
+            if self.check_collision(new_node_position):
+                continue
+
+            neighbors = self.find_neighbors(new_node_position)
+
+            if not neighbors:
+                continue
+
+            min_cost_neighbor = self.find_min_cost_neighbor(neighbors)
+
+            new_node = self.add_new_node(min_cost_neighbor, new_node_position)
+
+            self.rewire_tree(neighbors, new_node)
+
+            if self.check_goal_reached(new_node):
+                distance_to_goal = np.linalg.norm(np.array(new_node) - np.array(self.goal))
+                goal_cost = self.tree[new_node]['cost'] + distance_to_goal
+                if goal_cost < self.best_cost:
+                    self.best_cost = goal_cost
+                    self.tree[tuple(self.goal)] = {'parent': new_node, 'cost': goal_cost}
+                    print("Path found or better path found")
+
+                    # Construct the path
+                    path = []
+                    current_node = tuple(self.goal)
+                    while current_node is not None:
+                        path.append(current_node)
+                        current_node = self.tree[current_node]['parent']
+                    path.reverse()  # Reverse the path to go from start to goal
+
+                    self.best_path = path
+
+        return self.best_path, self.tree
 
 
 def plot_rrt(tree, path, obstacles):

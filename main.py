@@ -21,6 +21,9 @@ from control_scripts.control_mpc import is_waypoint_reached
 from control_scripts.add_obstacles import move_the_column
 from control_scripts.control_mpc import condition_for_avoiding_obstacle
 
+from RRT_star.class_rrt import RRTStar as rrt
+
+
 # Initialize the simulation
 p.connect(p.GUI)
 p.resetSimulation()
@@ -39,7 +42,8 @@ step_size = 0.1
 max_iter = 1000
 
 # Run the RRT* algorithm and show the results
-path, tree = rrt_star(start, goal, obstacles, step_size, max_iter)
+rrt_inst = rrt(start, goal, obstacles, step_size, max_iter)
+path, tree = rrt_inst.rrt_star_algorithm()
 
 ### Plot the results comment or uncomment the line you want to see ###
 
