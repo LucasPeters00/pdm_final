@@ -21,6 +21,7 @@ from control_scripts.control_mpc import condition_for_avoiding_obstacle
 
 from RRT_star.class_rrt import RRTStar as rrt
 from RRT_star.class_rrt_solovey import RRTStar as rrt_scratch
+from RRT_star.class_rrt_informed import IRRT as rrt_informed
 
 # Initialize the simulation
 p.connect(p.GUI)
@@ -37,10 +38,14 @@ obstacles = np.array(obstacles)
 start = np.array([0, 0, 0.25 + 0.5])
 goal = np.array([np.random.uniform(-1, 3), np.random.uniform(4.5, 6), np.random.uniform(0.2, 1.2)])
 step_size = 0.1
-max_iter = 2000
+max_iter = 1000
 
-# Run the RRT* algorithm and show the results
-rrt_inst = rrt_scratch(start, goal, obstacles, step_size, max_iter)
+#==============================================================================
+#Choose the RRT* algorithm you want to use
+
+#rrt_inst = rrt_scratch(start, goal, obstacles, step_size, max_iter)
+rrt_inst = rrt_informed(start, goal, obstacles, step_size, max_iter)
+#==============================================================================
 path, tree = rrt_inst.rrt_star_algorithm()
 
 ### Plot the results comment or uncomment the line you want to see ###
