@@ -1,0 +1,118 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from drone import Drone
+import pybullet as p
+import pybullet_data
+import time
+import os
+import cvxpy as cp
+
+# Initialize PyBullet and load environment
+p.connect(p.GUI)
+p.setGravity(0, 0, -9.81)
+planeId = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"), [0, 0, 0])
+
+# Define drone parameters and MPC settings
+drone_model = "urdf_files/cf2x.urdf"
+start_position = np.array([0, 0, 0.25 + 0.5])
+drone_mass = 0.027
+dt = 0.01
+max_velocity = 8.333
+max_acceleration = 22.07
+Q = np.diag([100, 100, 100, 0, 0, 0])
+R = np.diag([0.001, 0.001, 0.001])
+
+# Initialize Drone
+my_drone = Drone(drone_model, start_position, drone_mass, dt)
+
+# Define waypoints
+start = np.array([0, 0, 0.25 + 0.5])
+goal = np.array([0, 1, 0.25 + 0.5])
+path = np.array([start, goal])
+
+def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity,
+                       max_acceleration, goal, condition_for_avoiding_obstacle_is_true):
+    # Pad the waypoint with zeros to match 6D state
+    waypoint_padded = np.concatenate((waypoint, np.zeros(3)))
+
+    if waypoint[0] == goal[0] and waypoint[1] == goal[1] and waypoint[2] == goal[2]:
+        Q = np.diag([100, 100, 100, 0.1, 0.1, 0.1])
+        
+    # Initialize state (6D) and control (3D) variables
+    x = cp.Variable((6, horizon + 1))
+    u = cp.Variable((3, horizon))
+    safety_margin = 0.5
+    cost = 0
+    # Initial state constraint, make sure the drone starts at the initial position
+    constraints = [x[:, 0] == x_init]
+
+    # MPC problem formulation
+    for t in range(horizon):
+
+        cost += cp.quad_form(x[:, t] - waypoint_padded, Q)
+
+        if t < horizon - 1:
+            cost += cp.quad_form(u[:, t], R)
+            constraints += [x[:, t+1] == A @ x[:, t] + B @ u[:, t]]
+            constraints += [cp.abs(x[3:6, t]) <= max_velocity]  # Velocity constraints
+            constraints += [cp.abs(u[:, t]) <= max_acceleration] # Acceleration constraints
+
+    # Penalize terminal state
+
+    cost += cp.quad_form(x[:, horizon] - waypoint_padded, Q)
+
+    # Define and solve the optimization problem
+    problem = cp.Problem(cp.Minimize(cost), constraints)
+    problem.solve()
+    # print("Problem status", problem.status)
+    if problem.status != cp.OPTIMAL:
+        raise Exception("The MPC problem is infeasible.")
+
+    return u[:, 0].value, x[:, 1].value
+
+def is_waypoint_reached(current_position, waypoint, tolerance):
+    """Check if the current position is within a certain distance of the waypoint."""
+    return np.linalg.norm(np.array(current_position) - np.array(waypoint[:3])) < tolerance
+
+# MPC loop for different horizons
+horizons = [5, 10, 20, 50]
+all_paths = {}
+
+for horizon in horizons:
+    all_states = []
+    all_input = []
+
+    for waypoint in path:
+        while True:
+            current_state = my_drone.update_state()
+
+            control_input, next_state = mpc_control_drone(current_state, waypoint,
+                                                       my_drone.A, my_drone.B, Q, R, horizon, max_velocity,
+                                                         max_acceleration, goal, condition_for_avoiding_obstacle_is_true=False)
+            my_drone.apply_control(control_input)
+
+            # Check if waypoint is reached or if it's the final waypoint
+            if is_waypoint_reached(my_drone.position, waypoint, 0.1) or np.array_equal(waypoint, path[-1]):
+                break
+            
+            all_states.append(current_state)
+            all_input.append(control_input)
+
+            p.stepSimulation()
+
+    all_paths[horizon] = np.array(all_states)
+    print(f"Horizon {horizon} done")
+
+# Plotting
+plt.figure(figsize=(12, 8))
+t = np.linspace(0, len(all_states) * dt, len(all_states))
+
+for horizon, states in all_paths.items():
+    t = np.linspace(0, len(states) * dt, len(states))
+    plt.plot(t, states[0], label=f"Horizon {horizon}")
+
+plt.title('X-axis Position Over Time for Different Horizons')
+plt.ylabel('Position (m)')
+plt.xlabel('Time (s)')
+plt.legend()
+plt.show()
