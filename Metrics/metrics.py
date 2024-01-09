@@ -25,7 +25,7 @@ p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"), [0, 0, 0])
 # Create a dictionary that sets the variables for three different parameter sets. Variables are: step_size, max_iter, num_iterations
 def variable_parameters():
     parameter_set = {
-        "parameter_set_1": [0.3, 500, 5],
+        "parameter_set_1": [0.1, 1000, 1],
         # "parameter_set_2": [0.1, 10000, 1],
         # "parameter_set_3": [0.1, 50000, 1]
     }

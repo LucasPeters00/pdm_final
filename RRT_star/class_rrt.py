@@ -44,9 +44,23 @@ class RRTStar:
                 return True
         return False
 
-    def find_neighbors(self, new_node):
-        return [node for node in self.tree.keys() if np.linalg.norm(np.array(node) - np.array(new_node)) < self.obstacles[0][3]]
-
+    def find_neighbors(self, new_node_position):
+        gamma_kf = 40
+        card_v = len(self.tree)
+        dimension = len(new_node_position)
+        min_radius = 1  # Minimum radius value to avoid very small values
+        radius = max(min_radius, gamma_kf * (np.log(card_v) / card_v) ** (1 / dimension))
+        
+        neighbors = []
+        for node in self.tree.keys():
+            distance = np.linalg.norm(np.array(node) - np.array(new_node_position))
+            collision = self.check_collision(new_node_position)
+            print(f"Node: {node}, Distance: {distance}, Radius: {radius}, Collision: {collision}")
+            if distance < radius and collision is False:
+                neighbors.append(node)
+                
+        return neighbors
+        
     def find_min_cost_neighbor(self, neighbors):
         costs = [
             self.tree[neighbor]['cost'] + np.linalg.norm(np.array(neighbor) - np.array(self.tree[neighbor]['parent']))
@@ -77,7 +91,58 @@ class RRTStar:
         distance_to_goal = np.linalg.norm(np.array(new_node) - np.array(self.goal))
         return distance_to_goal < self.step_size
 
+# RRT_star algorithm based on Karaman and Frazzoli (2011)
     def rrt_star_algorithm(self):
+        for i in range(self.max_iter):
+            if i % (self.max_iter // 50) == 0:
+                print(f"Progress: {i / self.max_iter * 100}%")
+
+            random_point = self.generate_random_point()
+
+            nearest_node = self.find_nearest_node(random_point)
+
+            new_node_position = self.create_new_node(nearest_node, random_point)
+
+            if self.check_collision(new_node_position):
+                print("Collision detected in rrt_star_algorithm")
+                continue
+
+            neighbors = self.find_neighbors(new_node_position)
+
+            if not neighbors:
+                continue
+
+            min_cost_neighbor = self.find_min_cost_neighbor(neighbors)
+
+            new_node = self.add_new_node(min_cost_neighbor, new_node_position)
+
+            self.rewire_tree(neighbors, new_node)
+
+            if self.check_goal_reached(new_node):
+                distance_to_goal = np.linalg.norm(np.array(new_node) - np.array(self.goal))
+                goal_cost = self.tree[new_node]['cost'] + distance_to_goal
+                if goal_cost < self.best_cost:
+                    self.best_cost = goal_cost
+                    self.tree[tuple(self.goal)] = {'parent': new_node, 'cost': goal_cost}
+                    print("Path found or better path found")
+
+                    # Construct the path
+                    path = []
+                    current_node = tuple(self.goal)
+                    while current_node is not None:
+                        path.append(current_node)
+                        current_node = self.tree[current_node]['parent']
+                    path.reverse()  # Reverse the path to go from start to goal
+
+                    self.best_path = path
+
+        return self.best_path, self.tree
+
+    # def find_neighbors(self, new_node):
+    #     return [node for node in self.tree.keys() if np.linalg.norm(np.array(node) - np.array(new_node)) < self.obstacles[0][3]]
+    
+# RRT_star algorithm based on solovey et al. (2020)
+    def rrt_star_algorithm_solovey(self):
         for i in range(self.max_iter):
             if i % (self.max_iter // 50) == 0:
                 print(f"Progress: {i / self.max_iter * 100}%")
@@ -121,7 +186,6 @@ class RRTStar:
                     self.best_path = path
 
         return self.best_path, self.tree
-
 
 def plot_rrt(tree, path, obstacles):
     fig, axs = plt.subplots(1, 2)
