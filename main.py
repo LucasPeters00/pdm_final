@@ -75,7 +75,7 @@ my_drone = Drone(drone_model, start_position, drone_mass, dt)
 
 #Variables for MPC loop
 tolerance = 0.1
-safety_margin = 0.7
+safety_margin = 0.8
 
 
 # Control (MPC) Loop
