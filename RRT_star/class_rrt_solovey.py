@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
-
 class RRTStar:
     def __init__(self, start, goal, obstacles, step_size, max_iter):
         self.start = start
@@ -43,10 +42,23 @@ class RRTStar:
             if distance < column[3]:
                 return True
         return False
-   
-    def find_neighbors(self, new_node):
-        return [node for node in self.tree.keys() if np.linalg.norm(np.array(node) - np.array(new_node)) < self.obstacles[0][3]]
-    
+
+    def find_neighbors(self, new_node_position):
+        gamma_kf = 1
+        card_v = len(self.tree)
+        dimension = len(new_node_position)
+        min_radius = 0.1  # Minimum radius value to avoid very small values
+        radius = max(min_radius, gamma_kf * (np.log(card_v) / card_v) ** (1 / (dimension + 1))) # Use of Solovey et al. (2020) formula
+
+        neighbors = []
+        for node in self.tree.keys():
+            distance = np.linalg.norm(np.array(node) - np.array(new_node_position))
+            if distance < radius:
+                if not self.check_collision_line(node, new_node_position):
+                    neighbors.append(node)
+
+        return neighbors
+        
     def find_min_cost_neighbor(self, neighbors):
         costs = [
             self.tree[neighbor]['cost'] + np.linalg.norm(np.array(neighbor) - np.array(self.tree[neighbor]['parent']))
@@ -66,9 +78,42 @@ class RRTStar:
             self.tree[new_node] = {'parent': min_cost_neighbor, 'cost': new_node_cost}
         return new_node
 
+    def check_collision_line(self, start, end):
+        start = np.array(start)[:2]
+        end = np.array(end)[:2]
+
+        for column in self.obstacles:
+            column_center = np.array(column[:2])
+            radius = column[3]
+
+            # Vector from start to end
+            line_vector = end - start
+
+            # Vector from start to obstacle center
+            obstacle_vector = column_center - start
+
+            # Project the obstacle vector onto the line vector
+            t = np.dot(obstacle_vector, line_vector) / np.dot(line_vector, line_vector)
+
+            # Find the closest point on the line segment to the obstacle center
+            closest_point = start + np.clip(t, 0, 1) * line_vector
+
+            # Check if the distance between the closest point and obstacle center is less than the obstacle radius
+            if np.linalg.norm(column_center - closest_point) < radius:
+                print("Collision detected in check_collision_line")
+                return True  # There is a collision
+
+        return False  # No collision detected along the line
+
     def rewire_tree(self, neighbors, new_node):
         for neighbor in neighbors:
             distance_to_neighbor = np.linalg.norm(np.array(new_node) - np.array(neighbor))
+
+            # Voeg botsingscontrole toe voordat je doorgaat
+            potential_node_position = np.array(neighbor)
+            if self.check_collision_line(new_node, potential_node_position):
+                continue  # Sla deze buur over als er een botsing is
+
             potential_cost = self.tree[new_node]['cost'] + distance_to_neighbor
             if potential_cost < self.tree[neighbor]['cost']:
                 self.tree[neighbor] = {'parent': new_node, 'cost': potential_cost}
@@ -77,7 +122,6 @@ class RRTStar:
         distance_to_goal = np.linalg.norm(np.array(new_node) - np.array(self.goal))
         return distance_to_goal < self.step_size
 
-# RRT_star algorithm based on Karaman and Frazzoli (2011)
     def rrt_star_algorithm(self):
         for i in range(self.max_iter):
             if i % (self.max_iter // 50) == 0:
@@ -165,7 +209,6 @@ def plot_rrt(tree, path, obstacles):
             ax.plot([path[i][0], path[i+1][0]], [path[i][2], path[i+1][2]], color='blue', linewidth=2)
 
     plt.show()
-
 
 def plot_rrt_3d(tree, path, obstacles):
     fig = plt.figure()
