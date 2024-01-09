@@ -44,7 +44,7 @@ class RRTStar:
         return False
 
     def find_neighbors(self, new_node_position):
-        gamma_kf = 1
+        gamma_kf = 5 # Parameter tuning
         card_v = len(self.tree)
         dimension = len(new_node_position)
         min_radius = 0.1  # Minimum radius value to avoid very small values
@@ -78,32 +78,25 @@ class RRTStar:
             self.tree[new_node] = {'parent': min_cost_neighbor, 'cost': new_node_cost}
         return new_node
 
-    def check_collision_line(self, start, end):
-        start = np.array(start)[:2]
-        end = np.array(end)[:2]
+    def check_collision_line(self, start_point, end_point):
+        start = np.array(start_point)[:2]
+        end = np.array(end_point)[:2]
 
-        for column in self.obstacles:
-            column_center = np.array(column[:2])
-            radius = column[3]
+        for obstacle in self.obstacles:
+            obstacle_center = np.array(obstacle[:2])
+            radius = obstacle[3]
 
-            # Vector from start to end
             line_vector = end - start
+            obstacle_vector = obstacle_center - start
 
-            # Vector from start to obstacle center
-            obstacle_vector = column_center - start
-
-            # Project the obstacle vector onto the line vector
             t = np.dot(obstacle_vector, line_vector) / np.dot(line_vector, line_vector)
 
-            # Find the closest point on the line segment to the obstacle center
             closest_point = start + np.clip(t, 0, 1) * line_vector
 
-            # Check if the distance between the closest point and obstacle center is less than the obstacle radius
-            if np.linalg.norm(column_center - closest_point) < radius:
-                print("Collision detected in check_collision_line")
-                return True  # There is a collision
+            if np.linalg.norm(obstacle_center - closest_point) < radius:
+                return True
 
-        return False  # No collision detected along the line
+        return False
 
     def rewire_tree(self, neighbors, new_node):
         for neighbor in neighbors:

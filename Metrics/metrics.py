@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # Now, import the module using the absolute path
 from RRT_star.class_rrt import plot_rrt
 from RRT_star.class_rrt import RRTStar as rrt
+from RRT_star.class_rrt_solovey import RRTStar as rrt_scratch
 
 # Load the functions defined in other scripts
 # from RRT_star.class_rrt import rrt_star
@@ -25,7 +26,7 @@ p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"), [0, 0, 0])
 # Create a dictionary that sets the variables for three different parameter sets. Variables are: step_size, max_iter, num_iterations
 def variable_parameters():
     parameter_set = {
-        "parameter_set_1": [0.1, 500, 5],
+        "parameter_set_1": [0.1, 1000, 5],
         # "parameter_set_2": [0.1, 10000, 1],
         # "parameter_set_3": [0.1, 50000, 1]
     }
@@ -68,7 +69,7 @@ def run_simulation_with_rrt_star(start, goal, obstacles, step_size, max_iter, nu
     nodes_per_ideal_path = []
 
     # Run the RRT* algorithm and show the results
-    rrt_inst = rrt(start, goal, obstacles, step_size, max_iter)
+    rrt_inst = rrt_scratch(start, goal, obstacles, step_size, max_iter)
 
     for i in range(num_iterations):
         start_time = time.time()  # Start de tijd voor deze iteratie

@@ -37,7 +37,7 @@ obstacles = np.array(obstacles)
 start = np.array([0, 0, 0.25 + 0.5])
 goal = np.array([np.random.uniform(-1, 3), np.random.uniform(4.5, 6), np.random.uniform(0.2, 1.2)])
 step_size = 0.1
-max_iter = 5000
+max_iter = 2000
 
 # Run the RRT* algorithm and show the results
 rrt_inst = rrt_scratch(start, goal, obstacles, step_size, max_iter)
