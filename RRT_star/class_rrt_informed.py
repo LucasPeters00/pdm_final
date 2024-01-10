@@ -109,13 +109,11 @@ class IRRT:
         return tuple(new_node_position)
 
     def check_collision(self, new_node_position):
-        for column in self.obstacles:
-            new_node_array = np.array(new_node_position[:2])
-            column_center = np.array(column[:2])
-            distance = np.linalg.norm(new_node_array - column_center)
-            if distance < column[3]:
-                return True
-        return False
+        new_node_array = np.array(new_node_position[:2])
+        obstacle_centers = np.array([obstacle[:2] for obstacle in self.obstacles])
+        distances = np.linalg.norm(new_node_array - obstacle_centers, axis=1)
+        collision = np.any(distances < self.obstacles[:, 3])
+        return collision
 
     def find_neighbors(self, new_node_position):
         card_v = len(self.tree)
@@ -175,11 +173,6 @@ class IRRT:
         for neighbor in neighbors:
             distance_to_neighbor = np.linalg.norm(np.array(new_node) - np.array(neighbor))
 
-            # Voeg botsingscontrole toe voordat je doorgaat
-            potential_node_position = np.array(neighbor)
-            if self.check_collision_line(new_node, potential_node_position):
-                continue  # Sla deze buur over als er een botsing is
-
             potential_cost = self.tree[new_node]['cost'] + distance_to_neighbor
             if potential_cost < self.tree[neighbor]['cost']:
                 self.tree[neighbor] = {'parent': new_node, 'cost': potential_cost}
@@ -190,8 +183,8 @@ class IRRT:
 
     def rrt_star_algorithm(self):
         for i in range(self.max_iter):
-            if i % (self.max_iter // 50) == 0:
-                print(f"Progress: {i / self.max_iter * 100}%")
+            # if i % (self.max_iter // 50) == 0:
+            #     print(f"Progress: {i / self.max_iter * 100}%")
 
             random_point = self.generate_random_point()
 
