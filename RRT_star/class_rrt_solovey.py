@@ -3,13 +3,14 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
-class RRTStar:
-    def __init__(self, start, goal, obstacles, step_size, max_iter):
+class RRTStar_solovey:
+    def __init__(self, start, goal, obstacles, step_size, max_iter, gamma_kf):
         self.start = start
         self.goal = goal
         self.obstacles = obstacles
         self.step_size = step_size
         self.max_iter = max_iter
+        self.gamma_kf = gamma_kf
         self.tree = {tuple(start): {'parent': None, 'cost': 0}}
         self.best_path = None
         self.best_cost = np.inf
@@ -44,11 +45,10 @@ class RRTStar:
         return False
 
     def find_neighbors(self, new_node_position):
-        gamma_kf = 5 # Parameter tuning
         card_v = len(self.tree)
         dimension = len(new_node_position)
         min_radius = 0.1  # Minimum radius value to avoid very small values
-        radius = max(min_radius, gamma_kf * (np.log(card_v) / card_v) ** (1 / (dimension + 1))) # Use of Solovey et al. (2020) formula
+        radius = max(min_radius, self.gamma_kf * (np.log(card_v) / card_v) ** (1 / (dimension + 1))) # Use of Solovey et al. (2020) formula
 
         neighbors = []
         for node in self.tree.keys():
@@ -117,8 +117,8 @@ class RRTStar:
 
     def rrt_star_algorithm(self):
         for i in range(self.max_iter):
-            if i % (self.max_iter // 50) == 0:
-                print(f"Progress: {i / self.max_iter * 100}%")
+            # if i % (self.max_iter // 50) == 0:
+            #     print(f"Progress: {i / self.max_iter * 100}%")
 
             random_point = self.generate_random_point()
 
@@ -127,7 +127,7 @@ class RRTStar:
             new_node_position = self.create_new_node(nearest_node, random_point)
 
             if self.check_collision(new_node_position):
-                print("Collision detected in rrt_star_algorithm")
+                # print("Collision detected in rrt_star_algorithm")
                 continue
 
             neighbors = self.find_neighbors(new_node_position)
@@ -147,7 +147,7 @@ class RRTStar:
                 if goal_cost < self.best_cost:
                     self.best_cost = goal_cost
                     self.tree[tuple(self.goal)] = {'parent': new_node, 'cost': goal_cost}
-                    print("Path found or better path found")
+                    # print("Path found or better path found")
 
                     # Construct the path
                     path = []
