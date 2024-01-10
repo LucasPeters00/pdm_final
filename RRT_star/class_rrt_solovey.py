@@ -22,7 +22,7 @@ class RRTStar_solovey:
             return self.goal
         else:
             x_min, y_min, z_min = 0, 0, 0
-            x_max, y_max, z_max = 4, 6, 1.5 # increase x and y to compare smart and solovey algorithms
+            x_max, y_max, z_max = 10, 14, 1.5 # increase x and y to compare smart and solovey algorithms
             return np.array([np.random.uniform(x_min, x_max), np.random.uniform(y_min, y_max), np.random.uniform(z_min, z_max)])
 
     def find_nearest_node(self, random_point):

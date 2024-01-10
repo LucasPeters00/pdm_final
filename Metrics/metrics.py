@@ -20,7 +20,7 @@ obstacles = np.array(obstacles)
 
 # Define the start and goal positions and step size and max iterations
 start = np.array([0, 0, 0.25 + 0.5])
-goal = np.array([2, 5.5, 0.2])
+goal = np.array([5.5, 7.5, 0.8])
 
 # Function to calculate path length
 def calculate_path_length(path):
@@ -153,10 +153,10 @@ def grid_search(rrt_algorithm_classes, max_iter_values, gamma_kf_values, step_si
     return results
 
 # Define the ranges for grid search
-max_iter_values = [1000]
-gamma_kf_values = [1]
+max_iter_values = [500,1000,1500]
+gamma_kf_values = [1,2,3]
 step_size_values = [0.1]
-num_iterations_values = [3]
+num_iterations_values = [2]
 rrt_algorithm_classes = [rrt_solovey, rrt_informed]
 
 # Perform grid search for each rrt_algorithm_class
