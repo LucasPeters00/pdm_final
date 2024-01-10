@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 plt.figure(figsize=(12, 8))
 
 
-for i in [5,10,20,30]:
+for i in [5,10,20]:
 
     # Load all_states and all_input
     all_states = np.load('all_states_h' + str(i) + '.npy')
@@ -36,7 +36,7 @@ for i in [5,10,20,30]:
 # Add the legend and show the plot outside of the loop
 for i in range(1, 4):
     plt.subplot(3, 1, i)
-    plt.legend()
+    plt.legend(loc="upper right")
 
 # Adjust the space between subplots
 plt.subplots_adjust(hspace=0.5)
