@@ -63,11 +63,6 @@ drone_mass = 0.027 * 10**0
 max_velocity = 8.333 #ms^-1
 max_acceleration = 22.07 #ms^-2
 
-"""Total Mass (m): The mass of the drone, which is given as 0.027 kg in the <inertial> tag of the base_link element.
-Thrust-to-Weight Ratio (T/W): Provided as 2.25. This ratio indicates how much thrust the drone can generate compared
- to its weight. The actual thrust (T) can be calculated by multiplying this ratio by the weight of the drone 
- (W = m * g, where g is the acceleration due to gravity, approximately 9.81 m/s² on Earth)."""
-
 # MPC parameters
 horizon = 10
 dt = 0.01
@@ -81,7 +76,7 @@ my_drone = Drone(drone_model, start_position, drone_mass, dt)
 
 #Variables for MPC loop
 tolerance = 0.1
-safety_margin = 0.8
+safety_margin = 1
 
 
 # Control (MPC) Loop
