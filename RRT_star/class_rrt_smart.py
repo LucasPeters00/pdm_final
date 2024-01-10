@@ -1,12 +1,24 @@
 import numpy as np
 import networkx as nx
+import os
+import sys
+import time
+import pybullet_data
 import matplotlib.pyplot as plt
+import pybullet as p
 from mpl_toolkits.mplot3d import Axes3D
-from ..control_scripts.add_obstacles import add_obstacles
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from control_scripts.add_obstacles import add_obstacles
+
+p.connect(p.GUI)
+p.resetSimulation()
+p.setRealTimeSimulation(0)
+p.setGravity(0, 0, -9.81)
+p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"), [0, 0, 0])
 
 import numpy as np
 class RRTSmart:
-    def __init__(self, start, goal, obstacles, step_size, max_iter):
+    def __init__(self, start, goal, obstacles, step_size, max_iter, beacon_interval):
         self.start = start
         self.goal = goal
         self.obstacles = obstacles
@@ -26,8 +38,10 @@ class RRTSmart:
     def generate_random_point(self, domain=None):
         goal_sampling_rate = 0.05
         if np.random.random() < goal_sampling_rate:
-            return self.goal
+           return self.goal
         else:
+            if domain is None:
+                domain = self.domain
             x_min, y_min, z_min = domain['xmin'], domain['ymin'], domain['zmin']
             x_max, y_max, z_max = domain['xmax'], domain['ymax'], domain['zmax']
             return np.array([np.random.uniform(x_min, x_max), np.random.uniform(y_min, y_max), np.random.uniform(z_min, z_max)])
@@ -53,7 +67,7 @@ class RRTSmart:
         return False
 
     def find_neighbors(self, new_node_position):
-        gamma_kf = 5 # Parameter tuning
+        gamma_kf = 1 # Parameter tuning
         card_v = len(self.tree)
         dimension = len(new_node_position)
         min_radius = 0.1  # Minimum radius value to avoid very small values
@@ -125,8 +139,8 @@ class RRTSmart:
         return distance_to_goal < self.step_size
 
 #let op X nog defineeren 
-    def bias_ratio(self, new_node, X):
-        X_free = X - self.obstacles
+    def bias_ratio(self, new_node, domain):
+        X_free = domain - self.obstacles
         return (new_node / X_free) * self.b
     
     def biased_sampling(self, beacons, radius):
@@ -135,14 +149,17 @@ class RRTSmart:
 
         random_node = np.random.choice(beacons[1:-1])
         beacon_config = self.create_new_node(random_node)
-        domain = {
-            'xmin': max(beacon_config[0] - radius, self.domain['xmin']),
-            'xmax': min(beacon_config[0] + radius, self.domain['xmax']),
-            'ymin': max(beacon_config[1] - radius, self.domain['ymin']),
-            'ymax': min(beacon_config[1] + radius, self.domain['ymax']),
-            'zmin': max(beacon_config[2] - radius, self.domain['zmin']),
-            'zmax': min(beacon_config[2] + radius, self.domain['zmax'])
-        }
+
+        domain = self.domain.copy()  # Create a copy of the original domain
+
+        # Modify the domain based on the beacon_config and radius
+        domain['xmin'] = max(beacon_config[0] - radius, self.domain['xmin'])
+        domain['xmax'] = min(beacon_config[0] + radius, self.domain['xmax'])
+        domain['ymin'] = max(beacon_config[1] - radius, self.domain['ymin'])
+        domain['ymax'] = min(beacon_config[1] + radius, self.domain['ymax'])
+        domain['zmin'] = max(beacon_config[2] - radius, self.domain['zmin'])
+        domain['zmax'] = min(beacon_config[2] + radius, self.domain['zmax'])
+
         return self.generate_random_point(domain)
 
     def optimize_path(self):
@@ -187,15 +204,33 @@ class RRTSmart:
         return beacon_nodes
 
 
-    def rrt_star_smart_algorithm(self):
+    def rrt_star_smart_algorithm(self, rrt_factor, smart_sample_ratio, smart_radius, smart_switch_time=0):
+        start_biased_sampling = False
+        beacon_nodes, direct_cost = None, np.inf
+        normal_sample_counter, smart_sample_counter = 1, 0
+        start_time = time.time()
+
         for i in range(self.max_iter):
             if i % (self.max_iter // 50) == 0:
                 print(f"Progress: {i / self.max_iter * 100}%")
 
-            random_point = self.generate_random_point()
+            # Biased sampling logic
+            n = len(self.tree)
+            radius = rrt_factor * np.sqrt(np.log(n) / n)
+            
+            random_point = None  # Initialize random_point
 
+            if not start_biased_sampling or (start_biased_sampling and time.time() - start_time <= smart_switch_time \
+                    and float(smart_sample_counter / normal_sample_counter) >= smart_sample_ratio):
+                random_point = self.generate_random_point()
+                if start_biased_sampling:
+                    normal_sample_counter += 1
+            else:
+                random_point = self.biased_sampling(beacon_nodes, smart_radius)
+                smart_sample_counter += 1
+
+            # Core RRT* logic
             nearest_node = self.find_nearest_node(random_point)
-
             new_node_position = self.create_new_node(nearest_node, random_point)
 
             if self.check_collision(new_node_position):
@@ -208,7 +243,6 @@ class RRTSmart:
                 continue
 
             min_cost_neighbor = self.find_min_cost_neighbor(neighbors)
-
             new_node = self.add_new_node(min_cost_neighbor, new_node_position)
 
             self.rewire_tree(neighbors, new_node)
@@ -233,16 +267,18 @@ class RRTSmart:
 
         return self.best_path, self.tree
 
+# Usage
 start = np.array([0, 0, 0.25 + 0.5])
 goal = np.array([np.random.uniform(-1, 3), np.random.uniform(4.5, 6), np.random.uniform(0.2, 1.2)])
 step_size = 0.1
 max_iter = 1000
-beacon_interval = 1
+beacon_interval = 0.5
 obstacles, sliding_column_ids = add_obstacles()
 obstacles = np.array(obstacles)
 
 rrt = RRTSmart(start, goal, obstacles, step_size, max_iter, beacon_interval)
-path, tree = rrt.rrt_star_smart_algorithm()
+path, tree = rrt.rrt_star_smart_algorithm(rrt_factor=1.5, smart_sample_ratio=0.8, smart_radius=1.5, smart_switch_time=50)
+
 
 def plot_rrt(tree, path, obstacles):
     fig, axs = plt.subplots(1, 2)
@@ -286,7 +322,11 @@ def plot_rrt(tree, path, obstacles):
 
     plt.show()
 
+plot_rrt(tree, path, obstacles)  
+
 def plot_rrt_3d(tree, path, obstacles):
+
+
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.set_xlabel('X')
