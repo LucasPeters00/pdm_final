@@ -35,19 +35,11 @@ safety_margin = 0.7
 start = np.array([0, 0, 0.25 + 0.5])
 goal = np.array([0, 1, 0.25 + 0.5])
 
-path = np.array([
-    [0.0, 0, 0.75],
-    [0.33, 0, 0.75],
-    [0.67, 0, 0.75],
-    [1.0, 0, 0.75],
-    [1.33, 0, 0.75],
-    [1.67, 0, 0.75],
-    [2.0, 0, 0.75],
-    [2.33, 0, 0.75],
-    [2.67, 0, 0.75],
-    [3.0, 0, 0.75]
-])
-
+path = [[0,0,.75],
+    [0.1, 0.0, 0.75], [0.2, 0.0, 0.75], [0.3, 0.0, 0.75], [0.4, 0.0, 0.75],
+    [0.5, 0.0, 0.75], [0.6, 0.0, 0.75], [0.7, 0.0, 0.75], [0.8, 0.0, 0.75],
+    [0.9, 0.0, 0.75], [1, 0.0, 0.75], [1.1, 0.0, 0.75], [1.2, 0.0, 0.75]
+]
 
 def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity,
                        max_acceleration, goal, condition_for_avoiding_obstacle_is_true):
@@ -108,7 +100,7 @@ def is_waypoint_reached(current_position, waypoint, tolerance):
 
 def condition_for_avoiding_obstacle(waypoint):   
 
-    if waypoint[0] > 2:
+    if waypoint[0] > 1.0:
         return True
     else:
         return False
@@ -116,70 +108,74 @@ def condition_for_avoiding_obstacle(waypoint):
 x_positions = []
 x_velocities = []
 x_accelerations = []
+time_stamps = []
+stop_time = None
+velocity_threshold = 0.01
+acceleration_threshold = 0.001
+stop_drone = False
 
 # Control (MPC) Loop
 for waypoint in path:
-
-    final_waypoint_reached = True if np.array_equal(waypoint, path[-1]) else False
-    if final_waypoint_reached:
-        print("Final waypoint reached!")        
+    if stop_drone:
+        break
     while True:
-        # Start the timer
         start_time = time.time()
         current_state = my_drone.update_state()
+        time_stamps.append(start_time)
 
         condition_for_avoiding_obstacle_is_true = condition_for_avoiding_obstacle(waypoint)
-        # Check if the current waypoint is reached
-        if not final_waypoint_reached:
-            if is_waypoint_reached(my_drone.position, waypoint, tolerance):
-                break  # Exit the loop and move to the next waypoint
-
-        control_input, next_state = mpc_control_drone(current_state, waypoint,
-                                                       my_drone.A, my_drone.B, Q, R, horizon, max_velocity,
-                                                         max_acceleration, goal, condition_for_avoiding_obstacle_is_true)
         
+        if is_waypoint_reached(my_drone.position, waypoint, tolerance):
+            break
+
+        if condition_for_avoiding_obstacle_is_true and stop_time is None:
+            stop_time = start_time
+
+        control_input, next_state = mpc_control_drone(current_state, waypoint, my_drone.A, my_drone.B, Q, R, horizon, max_velocity, max_acceleration, goal, condition_for_avoiding_obstacle_is_true)
         my_drone.apply_control(control_input)
 
-        # Debug printing
-        print("waypoint         {:>6} {:>6} {:>6}".format(np.round(waypoint[0], 2), np.round(waypoint[1], 2), np.round(waypoint[2], 2)))
-        print("Difference       {:>6} {:>6} {:>6}".format(np.round(current_state[0]-waypoint[0], 2), np.round(current_state[1]-waypoint[1], 2), np.round(current_state[2]-waypoint[2], 2)))
-        print("Control Input:   {:>6} {:>6} {:>6}".format(np.round(control_input[0], 2), np.round(control_input[1], 2), np.round(control_input[2], 2)))
-
-        # Stop the clock
-        end_time = time.time()
-        # Calculate the control frequency
-        control_frequency = 1.0 / (end_time - start_time)
-
-        print(f"Control frequency: {control_frequency} Hz")
-
-        # In your control loop...
         x_positions.append(current_state[0])
         x_velocities.append(current_state[3])
         x_accelerations.append(control_input[0])
 
+        print("waypoint         {:>6} {:>6} {:>6}".format(np.round(waypoint[0], 2), np.round(waypoint[1], 2), np.round(waypoint[2], 2)))
+
+        if velocity_threshold > np.abs(current_state[3]) and acceleration_threshold > np.abs(control_input[0]):
+            stop_drone = True
+            break
+
         p.stepSimulation()
-        # time.sleep(dt)
 
-# After your control loop...
-plt.figure(figsize=(12, 8))
+if len(time_stamps) > len(x_positions):
+    time_stamps = time_stamps[:len(x_positions)]
 
-plt.subplot(3, 1, 1)
-plt.plot(x_positions)
+# Compute relative time
+time_x = np.array(time_stamps) - time_stamps[0]
+
+# Plotting
+# Plotting
+plt.figure(figsize=(10, 6))
+
+plt.subplot(2, 1, 1)
+plt.plot(time_x, x_positions, label='Position of the quadrotor')
 plt.title('X Position Over Time')
 plt.xlabel('Time')
 plt.ylabel('X Position')
 
-plt.subplot(3, 1, 2)
-plt.plot(x_velocities)
+plt.subplot(2, 1, 2)
+plt.plot(time_x, x_velocities, label='Velocity of the quadrotor')
 plt.title('X Velocity Over Time')
 plt.xlabel('Time')
 plt.ylabel('X Velocity')
 
-plt.subplot(3, 1, 3)
-plt.plot(x_accelerations)
-plt.title('X Acceleration Over Time')
-plt.xlabel('Time')
-plt.ylabel('X Acceleration')
+plt.subplots_adjust(hspace=0.5)
 
-plt.tight_layout()
+if stop_time is not None:
+    relative_stop_time = stop_time - time_stamps[0]
+    plt.figure(1)  
+    for i in range(1, 3):
+        plt.subplot(2, 1, i)
+        plt.axvline(x=(relative_stop_time-.25), color='red', linestyle=':', label='Obstacle detected, emergency stop initiated')    
+        plt.legend(loc="upper left")
+
 plt.show()
