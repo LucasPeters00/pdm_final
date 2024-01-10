@@ -20,7 +20,7 @@ from control_scripts.add_obstacles import move_the_column
 from control_scripts.control_mpc import condition_for_avoiding_obstacle
 
 from RRT_star.class_rrt import RRTStar as rrt
-from RRT_star.class_rrt_solovey import RRTStar as rrt_scratch
+from RRT_star.class_rrt_solovey import RRTStar_solovey as rrt_scratch
 from RRT_star.class_rrt_informed import IRRT as rrt_informed
 
 # Initialize the simulation
