@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 from mpl_toolkits.mplot3d import Axes3D
 
 class IRRT:
@@ -182,6 +183,8 @@ class IRRT:
         return distance_to_goal < self.step_size
 
     def rrt_star_algorithm(self):
+        start_time = time.time()
+
         for i in range(self.max_iter):
             # if i % (self.max_iter // 50) == 0:
             #     print(f"Progress: {i / self.max_iter * 100}%")
@@ -224,6 +227,9 @@ class IRRT:
 
                     self.best_path = path
 
+        end_time = time.time()
+        print("Time taken: {:.2f} seconds".format(end_time - start_time))
+        
         return self.best_path, self.tree
 
 def plot_rrt(tree, path, obstacles):

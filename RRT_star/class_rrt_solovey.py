@@ -22,7 +22,7 @@ class RRTStar_solovey:
             return self.goal
         else:
             x_min, y_min, z_min = 0, 0, 0
-            x_max, y_max, z_max = 4, 6, 1.5
+            x_max, y_max, z_max = 4, 6, 1.5 # increase x and y to compare smart and solovey algorithms
             return np.array([np.random.uniform(x_min, x_max), np.random.uniform(y_min, y_max), np.random.uniform(z_min, z_max)])
 
     def find_nearest_node(self, random_point):
@@ -36,14 +36,13 @@ class RRTStar_solovey:
         new_node_position = nearest_node + self.step_size * normalized_direction
         return tuple(new_node_position)
 
-
     def check_collision(self, new_node_position):
         new_node_array = np.array(new_node_position[:2])
         obstacle_centers = np.array([obstacle[:2] for obstacle in self.obstacles])
         distances = np.linalg.norm(new_node_array - obstacle_centers, axis=1)
         collision = np.any(distances < self.obstacles[:, 3])
         return collision
-    
+
     def find_neighbors(self, new_node_position):
         card_v = len(self.tree)
         dimension = len(new_node_position)
@@ -113,8 +112,6 @@ class RRTStar_solovey:
     def rrt_star_algorithm(self):
         start_time = time.time()
         for i in range(self.max_iter):
-            if i % (self.max_iter // 50) == 0:
-                print(f"Progress: {i / self.max_iter * 100}%")
 
             random_point = self.generate_random_point()
 
@@ -123,7 +120,6 @@ class RRTStar_solovey:
             new_node_position = self.create_new_node(nearest_node, random_point)
 
             if self.check_collision(new_node_position):
-                # print("Collision detected in rrt_star_algorithm")
                 continue
 
             neighbors = self.find_neighbors(new_node_position)
