@@ -14,7 +14,7 @@ def mpc_control_drone(x_init, waypoint, A, B, Q, R, horizon, max_velocity,
     # Initialize state (6D) and control (3D) variables
     x = cp.Variable((6, horizon + 1))
     u = cp.Variable((3, horizon))
-    safety_margin = 0.5
+    safety_margin = 0.8
     cost = 0
     # Initial state constraint, make sure the drone starts at the initial position
     constraints = [x[:, 0] == x_init]
