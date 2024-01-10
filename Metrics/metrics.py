@@ -153,10 +153,10 @@ def grid_search(rrt_algorithm_classes, max_iter_values, gamma_kf_values, step_si
     return results
 
 # Define the ranges for grid search
-max_iter_values = [500,1000,1500]
-gamma_kf_values = [1,2,3]
-step_size_values = [0.1]
-num_iterations_values = [2]
+max_iter_values = [1000,2000,5000]
+gamma_kf_values = [1,3,5]
+step_size_values = [0.05, 0.1]
+num_iterations_values = [20]
 rrt_algorithm_classes = [rrt_solovey, rrt_informed]
 
 # Perform grid search for each rrt_algorithm_class
