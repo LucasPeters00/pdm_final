@@ -13,11 +13,11 @@ from control_scripts.add_obstacles import move_the_column
 from drone import Drone
 
 # Import the RRT*, IRRT classes and plot functions
-from RRT_star.class_rrt import RRTStar as rrt
+
 from RRT_star.class_rrt_solovey import RRTStar_solovey as rrt_solovey
 from RRT_star.class_rrt_informed import IRRT as rrt_informed
-from RRT_star.class_rrt import plot_rrt
-from RRT_star.class_rrt import plot_rrt_3d    
+from RRT_star.class_rrt_solovey import plot_rrt
+from RRT_star.class_rrt_solovey import plot_rrt_3d    
 
 # Import the MPC control function, the waypoint reached function and the condition for avoiding obstacle function
 from control_scripts.control_mpc import mpc_control_drone
@@ -45,10 +45,11 @@ obstacles = np.array(obstacles)
 # Define the start, goal, step size, max iterations and gamma_kf for the RRT algorithms
 #==============================================================================
 start = np.array([0, 0, 0.25 + 0.5])
-goal = np.array([np.random.uniform(-1, 3), np.random.uniform(4.5, 6), np.random.uniform(0.2, 1.2)])
+goal = np.array([2.5, 4.5, 0.8])
+#goal = np.array([np.random.uniform(-1, 3), np.random.uniform(4.5, 6), np.random.uniform(0.2, 1.2)])
 step_size = 0.1
-max_iter = 2000
-gamma_kf = 1.5
+max_iter = 1000
+gamma_kf = 1
 
 #Uncomment the RRT* algorithm you want to use between informed and solovey
 #==============================================================================
