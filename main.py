@@ -56,6 +56,8 @@ gamma_kf = 1.5
 #rrt_inst = rrt_rrt_informed(start, goal, obstacles, step_size, max_iter)
 rrt_inst = rrt_solovey(start, goal, obstacles, step_size, max_iter, gamma_kf)
 
+path, tree = rrt_inst.rrt_star_algorithm() # Run the RRT algorithm and get the path and tree
+
 ##Uncomment if you want to plot the 2D or 3D RRT algorithm
 #==============================================================================
 
@@ -88,7 +90,7 @@ max_acceleration = 22.07 #ms^-2
 
 
 my_drone = Drone(drone_model, start_position, drone_mass, dt) # Initialize the drone instance
-path, tree = rrt_inst.rrt_star_algorithm() # Run the RRT algorithm and get the path and tree
+
 
 # Control (MPC) Loop
 for waypoint in path:
@@ -105,7 +107,7 @@ for waypoint in path:
             if is_waypoint_reached(my_drone.position, waypoint, tolerance):
                 break  # Exit the loop and move to the next waypoint if waypoint is reached
 
-        control_input, _ = mpc_control_drone(current_state, waypoint,
+        control_input = mpc_control_drone(current_state, waypoint,
                                                        my_drone.A, my_drone.B, Q, R, horizon, max_velocity,
                                                          max_acceleration, goal, condition_for_avoiding_obstacle_is_true) # Calculate the control input
         my_drone.apply_control(control_input)
