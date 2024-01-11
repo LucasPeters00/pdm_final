@@ -201,6 +201,7 @@ for i, path in enumerate(paths):
     axs[i].set_ylabel('Y Position (m)')
     axs[i].set_xlim([0, 6.5])  # Set x-axis limits
     axs[i].set_ylim([-1.5, 1.5])  # Set y-axis limits
+    axs[i].plttext(0, 0, mean(error_distance), fontsize=12)
     axs[i].legend(loc='upper right')
     
 plt.subplots_adjust(hspace = 0.5) 

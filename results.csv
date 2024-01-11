@@ -1,3 +1,2 @@
 parameter_set,step_size,max_iter,num_iterations,rrt_algorithm,gamma_kf,mean_path_length,std_path_length,mean_success_percentage,std_success_percentage,mean_time_per_iteration,std_time_per_iteration,mean_nodes_per_ideal_path,std_nodes_per_ideal_path
-1,0.1,1000,3,<class 'RRT_star.class_rrt_solovey.RRTStar_solovey'>,1,6.526502111483321,0.1357597481821692,100.0,0.0,1.7797319094340007,0.08927553740543251,18.666666666666668,2.494438257849294
-2,0.1,1000,3,<class 'RRT_star.class_rrt_informed.IRRT'>,1,6.643568955501095,0.23319560168811548,100.0,0.0,1.5560338497161865,0.15992696794146571,18.666666666666668,1.699673171197595
+1,0.1,5000,100,<class 'RRT_star.class_rrt_solovey.RRTStar_solovey'>,1,13.643278272600663,0.8622142767135038,100.0,0.0,38.49839678049088,1.8903083729188799,39.87,3.986615105575155
