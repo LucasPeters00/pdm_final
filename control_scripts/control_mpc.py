@@ -64,16 +64,31 @@ def is_waypoint_reached(current_position, waypoint, tolerance):
     return np.linalg.norm(np.array(current_position) - np.array(waypoint[:3])) < tolerance
 
 # Function to check if the drone is close to a dynamic obstacle
-def condition_for_avoiding_obstacle(drone_position, obstacle_ids, safety_margin): 
+# def condition_for_avoiding_obstacle(drone_position, obstacle_ids, safety_margin): 
+#     min_distance = float('inf')
+#     for obstacle_id in obstacle_ids:
+#         obstacle_position, _ = p.getBasePositionAndOrientation(obstacle_id) # Get the position of the obstacle
+#         if obstacle_position[1] > drone_position[1]: #Only look at the columns in front of the quadrotor, because the quadrotor won't fly backwards
+#             distance = np.linalg.norm(np.array(drone_position[:2]) - np.array(obstacle_position[:2])) # Calculate the eucledian distance between the quadrotor and the dynamic obstacle in the x,y plane
+#             if distance < min_distance:
+#                 min_distance = distance
+#     if min_distance < safety_margin: # If the distance is smaller than the safety margin, return True (turn on obstacle avoidance)
+#         return True
+#     else:
+#         return False
+
+def condition_for_avoiding_obstacle(drone_position, obstacle_ids, safety_margin, previous_min_distance):
     min_distance = float('inf')
     for obstacle_id in obstacle_ids:
-        obstacle_position, _ = p.getBasePositionAndOrientation(obstacle_id) # Get the position of the obstacle
-        if obstacle_position[1] > drone_position[1]: #Only look at the columns in front of the quadrotor, because the quadrotor won't fly backwards
-            distance = np.linalg.norm(np.array(drone_position[:2]) - np.array(obstacle_position[:2])) # Calculate the eucledian distance between the quadrotor and the dynamic obstacle in the x,y plane
+        obstacle_position, _ = p.getBasePositionAndOrientation(obstacle_id)
+        if obstacle_position[1] > drone_position[1]:
+            distance = np.linalg.norm(np.array(drone_position[:2]) - np.array(obstacle_position[:2]))
             if distance < min_distance:
                 min_distance = distance
-    if min_distance < safety_margin: # If the distance is smaller than the safety margin, return True (turn on obstacle avoidance)
-        return True
-    else:
-        return False
 
+    if previous_min_distance is not None and min_distance > previous_min_distance:
+        return (False, min_distance)
+    elif min_distance < safety_margin:
+        return (True, min_distance)
+    else:
+        return (False, min_distance)
