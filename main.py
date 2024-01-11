@@ -19,7 +19,7 @@ from RRT_star.class_rrt_informed import IRRT as rrt_informed
 from RRT_star.class_rrt import plot_rrt
 from RRT_star.class_rrt import plot_rrt_3d    
 
-# Import the MPC control function and the waypoint reached function
+# Import the MPC control function, the waypoint reached function and the condition for avoiding obstacle function
 from control_scripts.control_mpc import mpc_control_drone
 from control_scripts.control_mpc import is_waypoint_reached
 from control_scripts.control_mpc import condition_for_avoiding_obstacle
@@ -36,10 +36,11 @@ obstacles, sliding_column_ids = add_obstacles()
 obstacles = np.array(obstacles)
 
 #==============================================================================
+#========== BELOW VARIABLES CAN BE ADJUSTED FOR THE SIMULATION ================
 #==============================================================================
-#====== BELOW VARIABLES CAN BE ADJUSTED FOR THE SIMULATION ====================
+#========== BELOW VARIABLES CAN BE ADJUSTED FOR THE SIMULATION ================
 #==============================================================================
-#==============================================================================
+
 
 # Define the start, goal, step size, max iterations and gamma_kf for the RRT algorithms
 #==============================================================================
@@ -49,86 +50,80 @@ step_size = 0.1
 max_iter = 2000
 gamma_kf = 1.5
 
-#==============================================================================
 #Uncomment the RRT* algorithm you want to use between informed and solovey
+#==============================================================================
 
 #rrt_inst = rrt_rrt_informed(start, goal, obstacles, step_size, max_iter)
 rrt_inst = rrt_solovey(start, goal, obstacles, step_size, max_iter, gamma_kf)
+
+##Uncomment if you want to plot the 2D or 3D RRT algorithm
 #==============================================================================
-path, tree = rrt_inst.rrt_star_algorithm()
 
-
-### Plot the results comment or uncomment the line you want to see ###
 # plot_rrt_3d(tree, path, obstacles)
 plot_rrt(tree, path, obstacles)    
 
-# Load the drone into the simulation
+# MPC variables
+#==============================================================================
+horizon = 10
+dt = 0.01
+Q = np.diag([100, 100, 100, 0, 0, 0])
+R = np.diag([0.001, 0.001, 0.001])
+tolerance = 0.1 # Waypoint tolerance (when to switch to the next waypoint)
+safety_margin = 1 # Safety margin for the obstacle avoidance, how far from the obstacle should the quadrotor start stopping
+
+# Variables of the quadrotor instance
+#==============================================================================
 drone_model = "urdf_files/cf2x.urdf"
 start_position = np.array([0, 0, 0.25]) 
 drone_mass = 0.027 * 10**0
-
-#Contraint for MPC 
 max_velocity = 8.333 #ms^-1
 max_acceleration = 22.07 #ms^-2
 
-# MPC parameters
-horizon = 10
-dt = 0.01
+#==============================================================================
+#========== FINISHED ADJUSTING VARIABLES ======================================
+#==============================================================================
+#========== FINISHED ADJUSTING VARIABLES ======================================
+#==============================================================================
 
-# Define the MPC cost matrices, the velocity is not penalized
-Q = np.diag([100, 100, 100, 0, 0, 0])
-R = np.diag([0.001, 0.001, 0.001])
 
-# Create a Drone instance
-my_drone = Drone(drone_model, start_position, drone_mass, dt)
-
-#Variables for MPC loop
-tolerance = 0.1
-safety_margin = 1
-
+my_drone = Drone(drone_model, start_position, drone_mass, dt) # Initialize the drone instance
+path, tree = rrt_inst.rrt_star_algorithm() # Run the RRT algorithm and get the path and tree
 
 # Control (MPC) Loop
 for waypoint in path:
 
-    final_waypoint_reached = True if waypoint == path[-1] else False
+    final_waypoint_reached = True if waypoint == path[-1] else False # Check if the final waypoint is reached
+
     if final_waypoint_reached:
-        print("Final waypoint reached!")        
+        print("Final waypoint reached!")       
+
     while True:
-        
-        # Start the timer
-        start_time = time.time()
-        current_state = my_drone.update_state()
 
+        #### Start the timer for debug printing below ####
+        # start_time = time.time()
 
-        #Sliding columns 
-        sliding_column_ids, velocity_columns = move_the_column(sliding_column_ids)
+        current_state = my_drone.update_state() # Update the state of the drone
 
+        sliding_column_ids, velocity_columns = move_the_column(sliding_column_ids) # Move the sliding column and get column ids
 
-        condition_for_avoiding_obstacle_is_true = condition_for_avoiding_obstacle(my_drone.position, sliding_column_ids, safety_margin)
+        condition_for_avoiding_obstacle_is_true = condition_for_avoiding_obstacle(my_drone.position, sliding_column_ids, safety_margin) # Check if the condition for avoiding the obstacle is true
 
-        # Check if the current waypoint is reached
         if not final_waypoint_reached:
             if is_waypoint_reached(my_drone.position, waypoint, tolerance):
-                break  # Exit the loop and move to the next waypoint
+                break  # Exit the loop and move to the next waypoint if waypoint is reached
 
-
-        control_input, next_state = mpc_control_drone(current_state, waypoint,
+        control_input, _ = mpc_control_drone(current_state, waypoint,
                                                        my_drone.A, my_drone.B, Q, R, horizon, max_velocity,
-                                                         max_acceleration, goal, condition_for_avoiding_obstacle_is_true)
+                                                         max_acceleration, goal, condition_for_avoiding_obstacle_is_true) # Calculate the control input
         
         my_drone.apply_control(control_input)
 
-        # Debug printing
-        print("waypoint         {:>6} {:>6} {:>6}".format(np.round(waypoint[0], 2), np.round(waypoint[1], 2), np.round(waypoint[2], 2)))
+        #### Debug printing ####
+        # print("waypoint         {:>6} {:>6} {:>6}".format(np.round(waypoint[0], 2), np.round(waypoint[1], 2), np.round(waypoint[2], 2)))
         # print("Difference       {:>6} {:>6} {:>6}".format(np.round(current_state[0]-waypoint[0], 2), np.round(current_state[1]-waypoint[1], 2), np.round(current_state[2]-waypoint[2], 2)))
-        print("Control Input:   {:>6} {:>6} {:>6}".format(np.round(control_input[0], 2), np.round(control_input[1], 2), np.round(control_input[2], 2)))
-
-        # Stop the clock
-        end_time = time.time()
-        # Calculate the control frequency
-        control_frequency = 1.0 / (end_time - start_time)
-
-        print(f"Control frequency: {control_frequency} Hz")
+        # print("Control Input:   {:>6} {:>6} {:>6}".format(np.round(control_input[0], 2), np.round(control_input[1], 2), np.round(control_input[2], 2)))
+        # end_time = time.time()
+        # control_frequency = 1.0 / (end_time - start_time)
+        # print(f"Control frequency: {control_frequency} Hz")
 
         p.stepSimulation()
-        # time.sleep(dt)
