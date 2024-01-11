@@ -4,26 +4,27 @@ import pybullet_data
 import time
 import os
 import cvxpy as cp
-from control_scripts.add_obstacles import add_obstacles
 
-# Import the Drone class from its script file
+# Import the obstacles from the add_obstacles.py file and the move_the_column function
+from control_scripts.add_obstacles import add_obstacles
+from control_scripts.add_obstacles import move_the_column
+
+# Import the drone class from the drone.py file
 from drone import Drone
 
-# Load the functions defined in other scripts
-# from RRT_star.class_rrt import rrt_star
-from RRT_star.class_rrt import plot_rrt
-from RRT_star.class_rrt import plot_rrt_3d    
-from control_scripts.add_obstacles import add_obstacles
-from control_scripts.control_mpc import mpc_control_drone
-from control_scripts.control_mpc import is_waypoint_reached
-from control_scripts.add_obstacles import move_the_column
-from control_scripts.control_mpc import condition_for_avoiding_obstacle
-
+# Import the RRT*, IRRT classes and plot functions
 from RRT_star.class_rrt import RRTStar as rrt
 from RRT_star.class_rrt_solovey import RRTStar_solovey as rrt_solovey
 from RRT_star.class_rrt_informed import IRRT as rrt_informed
+from RRT_star.class_rrt import plot_rrt
+from RRT_star.class_rrt import plot_rrt_3d    
 
-# Initialize the simulation
+# Import the MPC control function and the waypoint reached function
+from control_scripts.control_mpc import mpc_control_drone
+from control_scripts.control_mpc import is_waypoint_reached
+from control_scripts.control_mpc import condition_for_avoiding_obstacle
+
+# Initialize the simulation, set the gravity and load the plane
 p.connect(p.GUI)
 p.resetSimulation()
 p.setRealTimeSimulation(0)
@@ -34,7 +35,14 @@ p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"), [0, 0, 0])
 obstacles, sliding_column_ids = add_obstacles()
 obstacles = np.array(obstacles)
 
-# Define the start and goal positions and step size and max iterations
+#==============================================================================
+#==============================================================================
+#====== BELOW VARIABLES CAN BE ADJUSTED FOR THE SIMULATION ====================
+#==============================================================================
+#==============================================================================
+
+# Define the start, goal, step size, max iterations and gamma_kf for the RRT algorithms
+#==============================================================================
 start = np.array([0, 0, 0.25 + 0.5])
 goal = np.array([np.random.uniform(-1, 3), np.random.uniform(4.5, 6), np.random.uniform(0.2, 1.2)])
 step_size = 0.1
@@ -42,15 +50,15 @@ max_iter = 2000
 gamma_kf = 1.5
 
 #==============================================================================
-#Choose the RRT* algorithm you want to use
+#Uncomment the RRT* algorithm you want to use between informed and solovey
 
-#rrt_inst = rrt_scratch(start, goal, obstacles, step_size, max_iter)
+#rrt_inst = rrt_rrt_informed(start, goal, obstacles, step_size, max_iter)
 rrt_inst = rrt_solovey(start, goal, obstacles, step_size, max_iter, gamma_kf)
 #==============================================================================
 path, tree = rrt_inst.rrt_star_algorithm()
 
-### Plot the results comment or uncomment the line you want to see ###
 
+### Plot the results comment or uncomment the line you want to see ###
 # plot_rrt_3d(tree, path, obstacles)
 plot_rrt(tree, path, obstacles)    
 
