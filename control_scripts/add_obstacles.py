@@ -49,7 +49,6 @@ def add_obstacles_rrt_star(): #function to add the obstacles for the RRT* algori
     obstacle_dimensions = []
 
     for i in range(num_columns):
-
         x = column_positions[i][0]
         y = column_positions[i][1]
         z = column_positions[i][2]
@@ -59,11 +58,9 @@ def add_obstacles_rrt_star(): #function to add the obstacles for the RRT* algori
     return obstacle_dimensions 
 
 def move_the_column(sliding_column_ids): #function to move the columns
-
     velocity = 2
     min_x = -1  
     max_x = 3  
-
     for column_id in sliding_column_ids:
         position, _ = p.getBasePositionAndOrientation(column_id)
         if position[0] <= min_x:

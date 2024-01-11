@@ -62,6 +62,7 @@ rrt_inst = rrt_solovey(start, goal, obstacles, step_size, max_iter, gamma_kf)
 # plot_rrt_3d(tree, path, obstacles)
 plot_rrt(tree, path, obstacles)    
 
+
 # MPC variables
 #==============================================================================
 horizon = 10
@@ -91,23 +92,15 @@ path, tree = rrt_inst.rrt_star_algorithm() # Run the RRT algorithm and get the p
 
 # Control (MPC) Loop
 for waypoint in path:
-
     final_waypoint_reached = True if waypoint == path[-1] else False # Check if the final waypoint is reached
-
     if final_waypoint_reached:
         print("Final waypoint reached!")       
-
     while True:
-
         #### Start the timer for debug printing below ####
         # start_time = time.time()
-
         current_state = my_drone.update_state() # Update the state of the drone
-
         sliding_column_ids, velocity_columns = move_the_column(sliding_column_ids) # Move the sliding column and get column ids
-
         condition_for_avoiding_obstacle_is_true = condition_for_avoiding_obstacle(my_drone.position, sliding_column_ids, safety_margin) # Check if the condition for avoiding the obstacle is true
-
         if not final_waypoint_reached:
             if is_waypoint_reached(my_drone.position, waypoint, tolerance):
                 break  # Exit the loop and move to the next waypoint if waypoint is reached
@@ -115,7 +108,6 @@ for waypoint in path:
         control_input, _ = mpc_control_drone(current_state, waypoint,
                                                        my_drone.A, my_drone.B, Q, R, horizon, max_velocity,
                                                          max_acceleration, goal, condition_for_avoiding_obstacle_is_true) # Calculate the control input
-        
         my_drone.apply_control(control_input)
 
         #### Debug printing ####
