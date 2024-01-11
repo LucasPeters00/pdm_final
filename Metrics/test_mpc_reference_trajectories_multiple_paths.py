@@ -187,14 +187,6 @@ for i, path in enumerate(paths):
     # Calculate the error distance between the actual and reference trajectories
     all_states = np.array(all_states)
     path_array = np.transpose(np.array(path))
-    time_ref = np.linspace(0, 1, len(path_array[0]))
-    time_actual = np.linspace(0, 1, len(all_states[:, 0]))
-    interp_x = interp1d(time_ref, path_array[0])
-    interp_y = interp1d(time_ref, path_array[1])
-    interp_z = interp1d(time_ref, path_array[2])
-    path_interp = np.vstack([interp_x(time_actual), interp_y(time_actual), interp_z(time_actual)])
-    error = path_interp[:2] - all_states[:, :2].T
-    error_distance = np.linalg.norm(error, axis=0)
 
     axs[i].plot(all_states[:, 0], all_states[:, 1], label='Actual Trajectory')
     axs[i].plot(path_array[0], path_array[1], 'r--', label='Reference Trajectory')
@@ -203,7 +195,7 @@ for i, path in enumerate(paths):
     axs[i].set_ylabel('Y Position (m)')
     axs[i].set_xlim([0, 6.5])  # Set x-axis limits
     axs[i].set_ylim([-1.5, 1.5])  # Set y-axis limits
-    axs[i].text(0.1, -0.7, f"mean distance error: {np.round(np.mean(error_distance),2)}", fontsize=12)
+
     axs[i].legend(loc='upper right')
     
 plt.subplots_adjust(hspace = 0.5) 
