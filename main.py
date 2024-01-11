@@ -88,6 +88,8 @@ max_acceleration = 22.07 #ms^-2
 #========== FINISHED ADJUSTING VARIABLES ======================================
 #==============================================================================
 
+### For plotting the 3D trajectory of the quadrotor ###
+trajectory = []
 
 my_drone = Drone(drone_model, start_position, drone_mass, dt) # Initialize the drone instance
 
@@ -101,6 +103,11 @@ for waypoint in path:
         #### Start the timer for debug printing below ####
         # start_time = time.time()
         current_state = my_drone.update_state() # Update the state of the drone
+
+        #### For plotting the 3D trajectory of the quadrotor ####
+        trajectory.append(current_state[0:3])
+
+
         sliding_column_ids, velocity_columns = move_the_column(sliding_column_ids) # Move the sliding column and get column ids
         condition_for_avoiding_obstacle_is_true = condition_for_avoiding_obstacle(my_drone.position, sliding_column_ids, safety_margin) # Check if the condition for avoiding the obstacle is true
         if not final_waypoint_reached:
@@ -119,5 +126,7 @@ for waypoint in path:
         # end_time = time.time()
         # control_frequency = 1.0 / (end_time - start_time)
         # print(f"Control frequency: {control_frequency} Hz")
+
+        
 
         p.stepSimulation()
