@@ -4,6 +4,8 @@ import pybullet_data
 import time
 import os
 import cvxpy as cp
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
 from drone import Drone  # Import the Drone class from its script file
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
@@ -201,7 +203,7 @@ for i, path in enumerate(paths):
     axs[i].set_ylabel('Y Position (m)')
     axs[i].set_xlim([0, 6.5])  # Set x-axis limits
     axs[i].set_ylim([-1.5, 1.5])  # Set y-axis limits
-    axs[i].plttext(0, 0, mean(error_distance), fontsize=12)
+    axs[i].text(0.1, -0.7, f"mean distance error: {np.round(np.mean(error_distance),2)}", fontsize=12)
     axs[i].legend(loc='upper right')
     
 plt.subplots_adjust(hspace = 0.5) 

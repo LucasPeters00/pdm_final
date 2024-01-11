@@ -4,7 +4,9 @@ import pybullet_data
 import time
 import os
 import cvxpy as cp
+import sys
 # Import the Drone class from its script file
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
 from drone import Drone
 
 import matplotlib.pyplot as plt
