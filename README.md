@@ -48,7 +48,30 @@ Parameters can be adjusted in the main.py script. If needed the code of the othe
 
 ### Running test
 
+There are also python scripts that shows some tests on the simulation
 
+##### MPC Tests
+
+It can be tested how well the drone follows a reference trajectory. An example is shown with the following code:
+
+```
+python3 Metrics/test_mpc_reference_trajectories_multiple_paths.py
+```
+![Example Image](images/trajectory_vs_reference.png)
+Or the stop condition if an obstacle is detected:
+
+```
+python3 Metrics/test_mpc_stop_condition.py
+```
+![Example Image](images/example_stop_img.png)
+Or the MPC can be tested in general from one waypoint to another, where for example there can be played with the horizon.
+
+```
+python3 Metrics/test_mpc_waypoint_to_waypoint.py
+```
+![Example Image](images/example_w_t_w.png)
+
+#### RRT* / IRRT* Tests
 
 
 
