@@ -67,7 +67,7 @@ def condition_for_avoiding_obstacle(drone_position, obstacle_ids, safety_margin,
     min_distance = float('inf')
     for obstacle_id in obstacle_ids:
         obstacle_position, _ = p.getBasePositionAndOrientation(obstacle_id)
-        if obstacle_position[1] > drone_position[1]:
+        if (obstacle_position[1]-0.3) > drone_position[1]:
             distance = np.linalg.norm(np.array(drone_position[:2]) - np.array(obstacle_position[:2]))
             if distance < min_distance:
                 min_distance = distance

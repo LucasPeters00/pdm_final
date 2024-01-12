@@ -12,7 +12,7 @@ def add_obstacles(): #function to add the obstacles for the simulation
     # Add the sliding columns
     sliding_column_ids = []
     sliding_column_ids.append(p.loadURDF("urdf_files/sliding_column.urdf", [-1.5,1.5,.8], p.getQuaternionFromEuler([0, 0, 0])))
-    sliding_column_ids.append(p.loadURDF("urdf_files/sliding_column.urdf", [3.5,2.5,.8], p.getQuaternionFromEuler([0, 0, 0])))
+    sliding_column_ids.append(p.loadURDF("urdf_files/sliding_column.urdf", [3,2.5,.8], p.getQuaternionFromEuler([0, 0, 0])))
     sliding_column_ids.append(p.loadURDF("urdf_files/sliding_column.urdf", [-1.5,3.5,.8], p.getQuaternionFromEuler([0, 0, 0])))
 
     # Add the landing box
