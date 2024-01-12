@@ -73,6 +73,21 @@ python3 Metrics/test_mpc_waypoint_to_waypoint.py
 
 #### RRT* / IRRT* Tests
 
+It can be tested how well the RRT* and IRRT* algorithms perform in the larger and smaller environment. The larger environment consists of 96 columns, whereas the smaller environment is used a reference path for the MPC controller and only consists of 12 columns. 
+
+Parameters can be adjusted in the metrics.py script. The results of the script is saved in a results.csv file and can be executed by the following code:
+
+```
+python 3 Metrics/metrics.py
+```
+
+Furthermore, the RRT* and IRRT* can be visualised in 2D or 3D by running the main.py function. An example of the visualisation is shown beneath:
+
+
+![Example Image](images/Figure_1_2D.png)
+
+![Example Image](images/Figure_1_3D.png)
+
 
 
 

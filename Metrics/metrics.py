@@ -11,16 +11,26 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
 
 from RRT_star.class_rrt_solovey import RRTStar_solovey as rrt_solovey
 from RRT_star.class_rrt_informed import IRRT as rrt_informed
-# from RRT_star.class_rrt_smart import RRTSmart as rrt_smart
-from control_scripts.add_obstacles import add_obstacles_rrt_star
+from control_scripts.add_obstacles import add_obstacles_rrt_star_small_environment, add_obstacles_rrt_star_large_environment
 
-# Add obstacles to the simulation and list them in a list
-obstacles = add_obstacles_rrt_star()
+#=====================================================================================================
+#========== BELOW VARIABLES CAN BE ADJUSTED FOR THE COMPARISON BETWEEN RRT* AND IRRT* ================
+#=====================================================================================================
+
+# Define the start, goal, max_iter_values, step_size_values, num_iterations_values and gamma_kf_values for the RRT* algorithms
+start = np.array([0, 0, 0.25 + 0.5]) # Start position for the RRT* algorithms
+goal = np.array([5.5, 10.5, 0.8]) # Goal position for the RRT* algorithms
+max_iter_values = [1000] # Maximum number of iterations to run the RRT* algorithms
+gamma_kf_values = [1] # Gamma_kf value to use in the RRT* algorithms
+step_size_values = [0.1] # Step size to take in the RRT* algorithms
+num_iterations_values = [1] # Number of iterations to run the RRT* algorithms
+rrt_algorithm_classes = [rrt_solovey, rrt_informed] # Uncomment if you only want to run one algorithm
+
+# Adjust which environment to use to compare the RRT* algorithms
+# obstacles = add_obstacles_rrt_star_small_environment() # use this for the small environment comparison (also used for the MPC comparison)
+obstacles = add_obstacles_rrt_star_large_environment() # use this for the large environment comparison
 obstacles = np.array(obstacles)
-
-# Define the start and goal positions and step size and max iterations
-start = np.array([0, 0, 0.25 + 0.5])
-goal = np.array([5.5, 10.5, 0.8])
+#===================================================================================================== 
 
 # Function to calculate path length
 def calculate_path_length(path):
@@ -48,9 +58,7 @@ def run_simulation_with_rrt_star(start, goal, obstacles, step_size, max_iter, nu
             rrt_inst = rrt_solovey(start, goal, obstacles, step_size, max_iter, gamma_kf)
         elif rrt_algorithm == rrt_informed:
             rrt_inst = rrt_informed(start, goal, obstacles, step_size, max_iter, gamma_kf)
-        # elif rrt_algorithm == rrt_smart:
-        #     rrt_inst = rrt_smart(start, goal, obstacles, step_size, max_iter, gamma_kf)
-
+ 
         path, _ = rrt_inst.rrt_star_algorithm()
 
         # Check if a valid path is found
@@ -151,13 +159,6 @@ def grid_search(rrt_algorithm_classes, max_iter_values, gamma_kf_values, step_si
             save_results_to_csv(results)
 
     return results
-
-# Define the ranges for grid search
-max_iter_values = [5000]
-gamma_kf_values = [1, 3]
-step_size_values = [0.1]
-num_iterations_values = [100]
-rrt_algorithm_classes = [rrt_solovey, rrt_informed]
 
 # Perform grid search for each rrt_algorithm_class
 grid_results = grid_search(rrt_algorithm_classes, max_iter_values, gamma_kf_values, step_size_values, num_iterations_values)
