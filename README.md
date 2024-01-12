@@ -41,7 +41,7 @@ If you want to see a full demonstration. First you need to be in the cloned dire
 conda activate drones
 python3 main.py
 ```
-A screen will pop up and you will see the following, the exact route can be different because of the stochastic nature of the RRT* algorithm. 
+A screen will pop up and you will see the following, the exact route can be different because of the stochastic nature of the RRT* algorithm.(make sure you have cvxpy installed) 
 
 [![Watch the video](https://img.youtube.com/vi/ynw0QnEbT1k/maxresdefault.jpg)](https://youtu.be/ynw0QnEbT1k)
 
