@@ -38,6 +38,7 @@ If everything went well now you can run the script
 If you want to see a full demonstration. First you need to be in the cloned directory, then you can use the following command:
 
 ```
+conda activate drones
 python3 main.py
 ```
 A screen will pop up and you will see the following, the exact route can be different because of the stochastic nature of the RRT* algorithm. 
@@ -55,6 +56,7 @@ There are also python scripts that shows some tests on the simulation
 It can be tested how well the drone follows a reference trajectory. An example is shown with the following code:
 
 ```
+conda activate drones
 python3 Metrics/test_mpc_reference_trajectories_multiple_paths.py
 ```
 ![Example Image](images/trajectory_vs_reference.png)
@@ -67,6 +69,7 @@ python3 Metrics/test_mpc_stop_condition.py
 Or the MPC can be tested in general from one waypoint to another, where for example there can be played with the horizon.
 
 ```
+conda activate drones
 python3 Metrics/test_mpc_waypoint_to_waypoint.py
 ```
 ![Example Image](images/example_w_t_w.png)
@@ -78,6 +81,7 @@ It can be tested how well the RRT* and IRRT* algorithms perform in the larger an
 Parameters can be adjusted in the metrics.py script. The results of the script is saved in a results.csv file and can be executed by the following code:
 
 ```
+conda activate drones
 python 3 Metrics/metrics.py
 ```
 
