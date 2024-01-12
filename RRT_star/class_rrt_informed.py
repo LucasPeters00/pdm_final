@@ -81,26 +81,6 @@ class IRRT:
         return np.sqrt(sum([(pos1[0] - pos2[0]) ** 2, (pos1[1] - pos2[1]) ** 2, (pos1[2] - pos2[2]) ** 2]))
     
 #==============================================================================
-    
-    #For drawing the ellipse
-    def CreateUnitSphere(self):
-        phi = np.linspace(0,2*np.pi, 256).reshape(256, 1) # the angle of the projection in the xy-plane
-        theta = np.linspace(0, np.pi, 256).reshape(-1, 256) # the angle from the polar axis, ie the polar angle
-        radius = 1
-
-        # Transformation formulae for a spherical coordinate system.
-        x = radius*np.sin(theta)*np.cos(phi)
-        y = radius*np.sin(theta)*np.sin(phi)
-        z = radius*np.cos(theta)
-        return (x, y, z)
-
-    def draw_ellipsoid(self, ax):
-        (xs, ys, zs) = self.CreateUnitSphere()
-        pts = np.array([xs, ys, zs])
-        pts_in_world_frame = self.C@self.L@pts + self.xcenter
-        ax.plot_surface(pts_in_world_frame[0], pts_in_world_frame[1], pts_in_world_frame[2], alpha=0.05, color="g")
-    
-#==============================================================================
         
     # Find the nearest node in the tree to the given random point
     def find_nearest_node(self, random_point):
