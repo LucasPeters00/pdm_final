@@ -155,7 +155,7 @@ def is_waypoint_reached(current_position, waypoint, tolerance):
 
 # Plotting
 # plt.figure(figsize=(12, 10))
-fig, axs = plt.subplots(len(paths), 1, figsize=(10, len(paths)*3))  # Create subplots vertically
+fig, axs = plt.subplots(len(paths), 1, figsize=(10, len(paths)*3)) 
 
 for i, path in enumerate(paths):
     # Reset the simulation for each path
@@ -179,12 +179,10 @@ for i, path in enumerate(paths):
             my_drone.apply_control(control_input)
             all_input.append(control_input)
             if final_waypoint_reached: 
-                # Check for stability at final waypoint
                 print("Simulation:"+str(i+1)+" finished")
                 break
             p.stepSimulation()
 
-    # Calculate the error distance between the actual and reference trajectories
     all_states = np.array(all_states)
     path_array = np.transpose(np.array(path))
 

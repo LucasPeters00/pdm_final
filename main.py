@@ -50,7 +50,7 @@ start = np.array([0, 0, 0.25 + 0.5])
 # goal = np.array([2.5, 4.5, 0.8])
 goal = np.array([np.random.uniform(0.5, 2), np.random.uniform(4.5, 5), np.random.uniform(0.6, 0.9)])
 step_size = 0.1
-max_iter = 3000
+max_iter = 1000
 gamma_kf = 1
 
 #Uncomment the RRT* algorithm you want to use between informed and solovey
@@ -65,7 +65,7 @@ path, tree = rrt_inst.rrt_star_algorithm() # Run the RRT algorithm and get the p
 #==============================================================================
 
 # plot_rrt_3d(tree, path, obstacles)
-plot_rrt(tree, path, obstacles)    
+# plot_rrt(tree, path, obstacles)    
 
 
 # MPC variables
@@ -75,7 +75,7 @@ dt = 0.01
 Q = np.diag([100, 100, 100, 0, 0, 0])
 R = np.diag([0.001, 0.001, 0.001])
 tolerance = 0.1 # Waypoint tolerance (when to switch to the next waypoint)
-safety_margin = 1 # Safety margin for the obstacle avoidance, how far from the obstacle should the quadrotor start stopping
+safety_margin = 1.3 # Safety margin for the obstacle avoidance, how far from the obstacle should the quadrotor start stopping
 
 # Variables of the quadrotor instance
 #==============================================================================
@@ -126,8 +126,6 @@ for waypoint in path:
         my_drone.apply_control(control_input)
 
         #### Debug printing ####
-        if condition_for_avoiding_obstacle_is_true:
-            print("Obstacle avoidance is on")
         # print("waypoint         {:>6} {:>6} {:>6}".format(np.round(waypoint[0], 2), np.round(waypoint[1], 2), np.round(waypoint[2], 2)))
         # print("Difference       {:>6} {:>6} {:>6}".format(np.round(current_state[0]-waypoint[0], 2), np.round(current_state[1]-waypoint[1], 2), np.round(current_state[2]-waypoint[2], 2)))
         # print("Control Input:   {:>6} {:>6} {:>6}".format(np.round(control_input[0], 2), np.round(control_input[1], 2), np.round(control_input[2], 2)))
@@ -147,5 +145,8 @@ for waypoint in path:
 
         p.stepSimulation()
 
-plot_trajectory_2d(trajectory, path, obstacles, tree) # Plot the 2D trajectory of the quadrotor
-plot_trajectory_3d(trajectory, path, obstacles, tree) # Plot the 3D trajectory of the quadrotor
+# Plot the 2D and 3D trajectory of the quadrotor
+#==============================================================================
+        
+# plot_trajectory_2d(trajectory, path, obstacles, tree) # Plot the 2D trajectory of the quadrotor
+# plot_trajectory_3d(trajectory, path, obstacles, tree) # Plot the 3D trajectory of the quadrotor

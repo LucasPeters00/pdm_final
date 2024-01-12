@@ -21,7 +21,7 @@ def plot_trajectory_3d(trajectory, path, obstacles, tree):
         y = y + radius * np.sin(phi)
         ax.plot_surface(x, y, z, color='red', alpha = 0.1)
 
-    ax.set_title('3D Trajectory of the static columns, the quadrotor trajectory and the waypoint trajectory')
+    ax.set_title('3D Trajectory of the static columns, the quadrotor trajectory, the waypoint trajectory and the tree')
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
     ax.set_zlabel('Z axis')
@@ -34,7 +34,7 @@ def plot_trajectory_3d(trajectory, path, obstacles, tree):
 
         for node, data in tree.items():
             if data['parent'] is not None:
-                ax.plot([node[0], data['parent'][0]], [node[1], data['parent'][1]], [node[2], data['parent'][2]], color='green', linewidth=0.1, alpha = 0.8, label='RRT* Tree')
+                ax.plot([node[0], data['parent'][0]], [node[1], data['parent'][1]], [node[2], data['parent'][2]], color='green', linewidth=0.1, alpha = 0.9, label='RRT* Tree')
 
 
     plt.show()
