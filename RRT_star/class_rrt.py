@@ -196,3 +196,4 @@ def plot_rrt_3d(tree, path, obstacles):
             ax.plot([path[i][0], path[i+1][0]], [path[i][1], path[i+1][1]], [path[i][2], path[i+1][2]], color='blue', linewidth=2)
 
     plt.show()
+

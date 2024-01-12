@@ -19,7 +19,7 @@ from RRT_star.class_rrt_informed import IRRT as rrt_informed
 from RRT_star.class_rrt_solovey import plot_rrt
 from RRT_star.class_rrt_solovey import plot_rrt_3d
 from Metrics.plotting_trajectory_and_reference_combined import plot_trajectory_3d
-from Metrics.plotting_trajectory_and_reference_combined import plot_trajectory_2d       
+from Metrics.plotting_trajectory_and_reference_combined import plot_trajectory_2d      
 
 # Import the MPC control function, the waypoint reached function and the condition for avoiding obstacle function
 from control_scripts.control_mpc import mpc_control_drone
@@ -147,5 +147,5 @@ for waypoint in path:
 
         p.stepSimulation()
 
-plot_trajectory_2d(trajectory, path, obstacles) # Plot the 2D trajectory of the quadrotor
-plot_trajectory_3d(trajectory, path, obstacles) # Plot the 3D trajectory of the quadrotor
+plot_trajectory_2d(trajectory, path, obstacles, tree) # Plot the 2D trajectory of the quadrotor
+plot_trajectory_3d(trajectory, path, obstacles, tree) # Plot the 3D trajectory of the quadrotor
