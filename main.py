@@ -50,7 +50,7 @@ start = np.array([0, 0, 0.25 + 0.5])
 # goal = np.array([2.5, 4.5, 0.8])
 goal = np.array([np.random.uniform(0.5, 2), np.random.uniform(4.5, 5), np.random.uniform(0.6, 0.9)])
 step_size = 0.1
-max_iter = 3000
+max_iter = 1000
 gamma_kf = 1
 
 #Uncomment the RRT* algorithm you want to use between informed and solovey
