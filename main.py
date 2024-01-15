@@ -149,4 +149,4 @@ for waypoint in path:
 #==============================================================================
         
 # plot_trajectory_2d(trajectory, path, obstacles, tree) # Plot the 2D trajectory of the quadrotor
-# plot_trajectory_3d(trajectory, path, obstacles, tree) # Plot the 3D trajectory of the quadrotor
+plot_trajectory_3d(trajectory, path, obstacles, tree) # Plot the 3D trajectory of the quadrotor
